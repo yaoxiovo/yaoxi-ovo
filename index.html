@@ -468,5 +468,29 @@
   </div>
 
   <script src="main.js"></script>
+  <!-- 隐藏的背景音乐 -->
+ <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+
+ <script>
+    const audio = document.getElementById('bgMusic');
+
+    // 播放函数
+    function playMusic() {
+        audio.play().catch(err => console.log('播放失败:', err));
+    }
+
+    // 监听用户第一次触摸或点击，触发播放后移除监听
+    function autoPlayHandler() {
+        playMusic();
+        document.removeEventListener('touchstart', autoPlayHandler);
+        document.removeEventListener('click', autoPlayHandler);
+    }
+
+    document.addEventListener('touchstart', autoPlayHandler, { once: true });
+    document.addEventListener('click', autoPlayHandler, { once: true });
+
+    // 额外兼容微信环境
+    document.addEventListener("WeixinJSBridgeReady", playMusic);
+ </script>
 </body>
 </html>

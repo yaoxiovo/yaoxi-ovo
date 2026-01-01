@@ -1,6 +1,2 @@
-name = "yaoxi-ovo"
-compatibility_date = "2026-01-01"
-assets = { directory = "./dist" }
-
-# 如果使用模块 Workers
-main = "./dist/index.js"
+# wrangler.toml
+name = 'weathered-bird-049a'

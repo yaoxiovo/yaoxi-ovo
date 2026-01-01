@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>大文件下载压力测试 - H5 生成</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #eee;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    h1 { color: #ff4d4d; margin-bottom: 0.4em; }
+    .size-info { font-size: 1.1em; color: #ffcc00; margin: 2em 0; }
+    button {
+      padding: 18px 60px;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #ff4d4d, #ff1a1a);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(255, 30, 30, 0.4);
+      transition: all 0.25s;
+    }
+    button:hover { transform: scale(1.08); box-shadow: 0 12px 40px rgba(255, 50, 50, 0.6); }
+    button:active { transform: scale(0.96); }
+    #status {
+      margin-top: 2.5rem;
+      font-size: 1.2rem;
+      min-height: 1.8em;
+      color: #4dff4d;
+    }
+    .tip {
+      margin-top: 4rem;
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>浏览器端生成大文件下载测试</h1>
+  <div class="size-info">当前预设大小：约 <strong>1 GB</strong>（可自行修改下方代码）</div>
+
+  <button onclick="startBigFileDownload()">开始下载 1GB 测试文件</button>
+
+  <div id="status"></div>
+
+  <div class="tip">
+    原理：使用 Blob + URL.createObjectURL 在内存中直接生成假的二进制文件<br>
+    适合用来测：下载速度、浏览器内存占用、网盘/下载器限速策略、CDN/反爬策略等<br>
+    手机上建议用 Chrome/Edge/Samsung Internet 测试，文件管理器可能不显示完整大小
+  </div>
+
+  <script>
+    function startBigFileDownload() {
+      const status = document.getElementById('status');
+      status.textContent = '正在生成文件...（大文件生成可能需要几秒到几十秒）';
+
+      // ─────────────── 修改这一行来控制文件大小 ───────────────
+      const targetSizeMB = 1024;          // ← 改这里！  1024 = 1GB, 5120 = 5GB ...
+      // ──────────────────────────────────────────────────────────
+
+      const targetBytes = targetSizeMB * 1024 * 1024;
+
+      // 每块 16MB，减少内存压力（尤其手机端）
+      const chunkSize = 16 * 1024 * 1024;
+      const chunksCount = Math.ceil(targetBytes / chunkSize);
+
+      const chunks = [];
+
+      // 填充垃圾数据（0x00 ~ 0xFF 循环）
+      for (let i = 0; i < chunksCount; i++) {
+        const remaining = (i === chunksCount - 1)
+          ? targetBytes % chunkSize || chunkSize
+          : chunkSize;
+
+        const chunk = new Uint8Array(remaining);
+        for (let j = 0; j < remaining; j++) {
+          chunk[j] = (j + i) & 0xFF;   // 简单可辨识的填充图案
+        }
+        chunks.push(chunk);
+      }
+
+      // 合并所有 chunk
+      const blob = new Blob(chunks, { type: 'application/octet-stream' });
+
+      const url = URL.createObjectURL(blob);
+
+      // 触发下载
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `test-\( {targetSizeMB}MB- \){Date.now()}.bin`;
+      document.body.appendChild(a);
+      a.click();
+
+      // 清理（部分浏览器需延迟 revoke）
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        status.textContent = '下载已触发！文件大小 ≈ ' + targetSizeMB + ' MB';
+      }, 100);
+
+      // 提示内存占用
+      console.log(`已生成 Blob，大小约 ${targetSizeMB}MB，当前内存占用会明显上升`);
+    }
+  </script>
+
+</body>
+</html>

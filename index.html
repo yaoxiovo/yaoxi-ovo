@@ -71,9 +71,11 @@
         display: none; /* 隐藏视频 */
       }
       .background {
-        background-image: url('home.jpg'); /* 静态图片路径 */
+        background-image: url('home.png'); /* 静态图片路径，确保文件存在于服务器根目录或正确路径；如果黑屏，检查路径或替换为绝对路径如 'https://yourdomain.com/background-image.jpg' */
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat; /* 确保不重复 */
+        background-color: #000000; /* fallback 黑屏时用纯黑 */
       }
     }
 
@@ -196,7 +198,9 @@
     }
     .card::after {
       content: ""; position: absolute; inset: 1.5px;
-      background: var(--bg-card-face); border-radius: 19px; z-index: -1;
+      background: rgba(22, 22, 24, 0.6); /* 修改: 改成半透明背景 */
+      backdrop-filter: blur(10px); /* 修改: 添加毛玻璃效果，值可调整为 5px~20px */
+      border-radius: 19px; z-index: -1;
     }
     .card:hover {
       transform: translateY(-5px);

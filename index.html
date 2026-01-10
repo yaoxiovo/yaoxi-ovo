@@ -63,6 +63,7 @@
       height: 100%;
       object-fit: cover; /* 视频覆盖整个背景 */
       z-index: -1;
+      loading: lazy; /* 优化: 延迟加载视频 */
     }
 
     /* 移动设备切换为静态图片 */
@@ -71,12 +72,27 @@
         display: none; /* 隐藏视频 */
       }
       .background {
-        background-image: url('home.png'); /* 静态图片路径，确保文件存在于服务器根目录或正确路径；如果黑屏，检查路径或替换为绝对路径如 'https://yourdomain.com/background-image.jpg' */
+        background-image: url('home.png'); /* 静态图片路径 */
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat; /* 确保不重复 */
-        background-color: #000000; /* fallback 黑屏时用纯黑 */
+        background-repeat: no-repeat;
       }
+    }
+
+    /* --- Loading Spinner --- */ /* 新增: 加载中提示，8s 后自动隐藏 */
+    .loading-spinner {
+      position: fixed;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 9999; /* 最顶层 */
+      color: var(--text-soft);
+      font-size: 16px;
+      animation: fadeOut 8s forwards; /* 8s 后淡出 */
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
     }
 
     /* --- 布局容器 --- */
@@ -198,8 +214,8 @@
     }
     .card::after {
       content: ""; position: absolute; inset: 1.5px;
-      background: rgba(22, 22, 24, 0.6); /* 修改: 改成半透明背景 */
-      backdrop-filter: blur(10px); /* 修改: 添加毛玻璃效果，值可调整为 5px~20px */
+      background: rgba(22, 22, 24, 0.6); /* 透明背景 */
+      backdrop-filter: blur(10px); /* 毛玻璃模糊效果 */
       border-radius: 19px; z-index: -1;
     }
     .card:hover {
@@ -353,7 +369,7 @@
 </head>
 <body>
   <div class="background">
-    <video autoplay loop muted playsinline poster="background-image.jpg">
+    <video autoplay loop muted playsinline poster="home.png">
       <source src="home.mp4" type="video/mp4">
     </video>
   </div>

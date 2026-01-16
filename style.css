@@ -467,4 +467,20 @@ html.light .social-btn:hover { background: #000; color: #fff; }
   40% { content: '..'; }
   60% { content: '...'; }
 }
+/* 优化滚动行为 */
+.chat-history {
+  scroll-behavior: smooth;
+  /* 确保在内容更新时有足够的空间 */
+  padding-bottom: 20px; 
+}
+
+/* 消息出现的微动画 */
+.chat-msg {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 

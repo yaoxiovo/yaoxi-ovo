@@ -166,3 +166,94 @@ async function sendMessage() {
 chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMessage();
 });
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  // 1. 发送用户消息
+  const userBubble = createMessageBubble('user');
+  userBubble.innerText = text;
+  chatInput.value = '';
+
+  // 2. 创建 AI 消息气泡
+  const aiBubble = document.createElement('div');
+  aiBubble.className = 'chat-msg ai';
+  
+  // 创建思考容器
+  const reasoningDiv = document.createElement('div');
+  reasoningDiv.className = 'reasoning-box';
+  reasoningDiv.innerText = '正在思考...'; // 初始状态
+  
+  // 创建内容容器
+  const contentSpan = document.createElement('span');
+  
+  aiBubble.appendChild(reasoningDiv);
+  aiBubble.appendChild(contentSpan);
+  chatHistory.appendChild(aiBubble);
+  scrollToBottom();
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-reasoner", // 必须使用 reasoner 模型
+        messages: [{ role: "user", content: text }],
+        stream: true 
+      })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    // 清空初始提示，准备接收流
+    let hasStartedReasoning = false;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+      
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const dataStr = line.slice(6);
+          if (dataStr === '[DONE]') break;
+          
+          try {
+            const data = JSON.parse(dataStr);
+            const delta = data.choices[0].delta;
+
+            // --- 核心逻辑：区分思考和回答 ---
+            
+            // 1. 处理思考内容
+            if (delta.reasoning_content) {
+              if (!hasStartedReasoning) {
+                reasoningDiv.innerText = ''; // 收到第一块思考数据时清空“正在思考...”
+                hasStartedReasoning = true;
+              }
+              reasoningDiv.innerText += delta.reasoning_content;
+              scrollToBottom();
+            } 
+            
+            // 2. 处理正式回答内容
+            else if (delta.content) {
+              // 当正式内容开始出现时，可以考虑把思考框变暗或者收起
+              reasoningDiv.style.opacity = '0.7'; 
+              contentSpan.innerText += delta.content;
+              scrollToBottom();
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error(error);
+    contentSpan.innerText = "出错了，请检查网络或 API Key。";
+  }
+}

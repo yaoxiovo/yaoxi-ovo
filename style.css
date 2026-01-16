@@ -249,10 +249,28 @@ body {
 .card::after {
   content: "";
   position: absolute;
-  inset: 1.5px;
-  background: var(--bg-card-face);
-  border-radius: 19px;
+  inset: 0;
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--card-highlight),
+      transparent 40%
+    ),
+    var(--card-glass-bg);
+
+  backdrop-filter: var(--card-glass-blur);
+  -webkit-backdrop-filter: var(--card-glass-blur);
+
+  border: 0.6px solid var(--card-border);
+
+  box-shadow:
+    inset 0 1px 0 var(--card-highlight),
+    0 25px 50px rgba(0,0,0,0.35);
+
   z-index: -1;
+  transition: all 0.6s ease;
 }
 
 .card:hover {
@@ -558,6 +576,42 @@ body {
   opacity: 1;
 }
 
+/* ===== 浅色模式（白天） ===== */
+html.light {
+  --bg-page: #f5f6f8;
+  --text-main: #1c1c1e;
+  --text-soft: #5e5e62;
+
+  --card-glass-bg: var(--card-glass-bg-light);
+  --card-border: var(--card-border-light);
+  --card-highlight: var(--card-highlight-light);
+}
+
+html.light .top-bar {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0,0,0,0.08);
+}
+
+html.light .card-icon {
+  background: rgba(180,140,255,0.2);
+}
+
+html.light .avatar-tag {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.08);
+}
+/* ===== 自动深浅色（按时间） ===== */
+
+  /* 深色（夜间，默认） */
+  --card-glass-bg: rgba(22, 22, 24, 0.6);
+  --card-glass-blur: blur(28px) saturate(180%);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-highlight: rgba(255, 255, 255, 0.15);
+
+  /* 浅色（日间） */
+  --card-glass-bg-light: rgba(255, 255, 255, 0.65);
+  --card-border-light: rgba(0, 0, 0, 0.08);
+  --card-highlight-light: rgba(255, 255, 255, 0.6);
 /* --- 动画帧 --- */
 @keyframes rotateBorder {
   from {

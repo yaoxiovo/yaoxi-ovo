@@ -373,3 +373,98 @@ html.light .card-title, html.light .avatar-name { color: #000; text-shadow: none
 html.light .card-icon { background: rgba(0,0,0,0.05); color: #000; }
 html.light .social-btn { background: rgba(0,0,0,0.05); color: #000; }
 html.light .social-btn:hover { background: #000; color: #fff; }
+
+/* 聊天卡片特定样式 */
+.chat-card {
+  /* 让卡片稍微高一点，方便聊天 */
+  grid-row: span 2; 
+}
+
+.chat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  overflow: hidden; /* 防止溢出 */
+}
+
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+  /* 自定义滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+/* 消息气泡 */
+.chat-msg {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.chat-msg.ai {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom-left-radius: 2px;
+}
+
+.chat-msg.user {
+  align-self: flex-end;
+  background: rgba(var(--primary-rgb, 64, 158, 255), 0.6); /* 假设你有主色调，没有则用蓝色 */
+  background: rgba(0, 123, 255, 0.5);
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+/* 输入框区域 */
+.chat-input-box {
+  display: flex;
+  gap: 8px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-input-box input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: white;
+  outline: none;
+}
+
+.chat-input-box button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.chat-input-box button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 简单的加载动画 */
+.typing::after {
+  content: '...';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60% { content: '...'; }
+}
+

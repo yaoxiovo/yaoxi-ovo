@@ -1,7 +1,7 @@
 {
 	"redirects": [
 		{
-			"source": "/zy",
+			"source": "/",
 			"destination": "https://yaoxi.xingyu.ink",
 			"statusCode": 302
 		}

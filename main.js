@@ -1,138 +1,168 @@
-/* === 原有基础逻辑 (保持不变) === */
-function updateTime() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const clockEl = document.getElementById("clock");
-  if(clockEl) clockEl.textContent = `${hours}:${minutes}`;
-}
-setInterval(updateTime, 1000);
-updateTime();
-
-const modal = document.getElementById("contact-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalData = document.getElementById("modal-data");
-const modalIcon = document.getElementById("modal-icon");
-const toast = document.getElementById("copy-toast");
-let currentData = "";
-
-function openModal(type, data, iconClass) {
-  modalTitle.innerText = type;
-  modalData.innerText = data;
-  currentData = data;
-  modalIcon.className = iconClass;
-  modal.classList.add("active");
-}
-
-function closeModal() { modal.classList.remove("active"); }
-if(modal) {
-    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-}
-
-function copyData() {
-  navigator.clipboard.writeText(currentData).then(() => {
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2000);
-  });
-}
-
-/* === AI 与身份验证逻辑 (整合优化版) === */
-let USER_TOKEN = null;
-const WORKER_URL = 'https://old-cake-08cc.yaoxiovo.workers.dev'; // 替换为你的 CF Worker URL
-const chatHistory = document.getElementById('chat-history');
-const chatInput = document.getElementById('chat-input');
-
-// Google 登录回调函数
-function handleCredentialResponse(response) {
-  USER_TOKEN = response.credential;
-  const overlay = document.getElementById('auth-overlay');
-  if(overlay) overlay.style.display = 'none'; // 登录成功隐藏遮罩
-  console.log("身份验证成功");
-}
-
-function scrollToBottom() {
-  chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
-}
-
-async function sendMessage() {
-  const text = chatInput.value.trim();
-  if (!text || !USER_TOKEN) return;
-
-  // 1. 添加用户消息
-  const userDiv = document.createElement('div');
-  userDiv.className = 'chat-msg user';
-  userDiv.innerText = text;
-  chatHistory.appendChild(userDiv);
-  chatInput.value = '';
-
-  // 2. 创建 AI 消息气泡容器
-  const aiBubble = document.createElement('div');
-  aiBubble.className = 'chat-msg ai';
-  
-  const reasoningDiv = document.createElement('div');
-  reasoningDiv.className = 'reasoning-box';
-  reasoningDiv.innerText = '正在思考...';
-  
-  const contentSpan = document.createElement('span');
-  
-  aiBubble.appendChild(reasoningDiv);
-  aiBubble.appendChild(contentSpan);
-  chatHistory.appendChild(aiBubble);
-  scrollToBottom();
-
-  try {
-    const response = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${USER_TOKEN}` // 携带 Token 传给 Worker
-      },
-      body: JSON.stringify({
-        model: "deepseek-reasoner",
-        messages: [{ role: "user", content: text }],
-        stream: true 
-      })
-    });
-
-    if (!response.ok) throw new Error('请求失败');
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let hasStartedReasoning = false;
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
-      
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const dataStr = line.slice(6);
-          if (dataStr === '[DONE]') break;
-          try {
-            const data = JSON.parse(dataStr);
-            const delta = data.choices[0].delta;
-
-            if (delta.reasoning_content) {
-              if (!hasStartedReasoning) { reasoningDiv.innerText = ''; hasStartedReasoning = true; }
-              reasoningDiv.innerText += delta.reasoning_content;
-              scrollToBottom();
-            } else if (delta.content) {
-              reasoningDiv.style.opacity = '0.7'; 
-              contentSpan.innerText += delta.content;
-              scrollToBottom();
-            }
-          } catch (e) {}
+document.addEventListener('DOMContentLoaded', () => {
+    // Clock Functionality
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('zh-CN', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        const clockElement = document.getElementById('clock');
+        if (clockElement) {
+            clockElement.textContent = timeString;
         }
-      }
-    }
-  } catch (error) {
-    contentSpan.innerText = "出错了: " + error.message;
-  }
-}
 
-if(chatInput) {
-    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        // Auto theme based on time (7:00 - 18:59 is light mode)
+        const hour = now.getHours();
+        const html = document.documentElement;
+        if (hour >= 7 && hour < 19) {
+            html.classList.add("light");
+        } else {
+            html.classList.remove("light");
+        }
+    }
+    
+    // Update immediately and then every second
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Music Player Logic
+    const audio = document.getElementById('bgMusic');
+    const musicModal = document.getElementById('music-modal');
+
+    if (audio) {
+        audio.volume = 0.3; // Set default volume
+
+        const playMusic = () => {
+            audio.play().catch(err => {
+                console.log('Playback prevented:', err);
+                // Fallback: wait for interaction if direct play fails
+                const resumePlay = () => {
+                    audio.play();
+                    document.removeEventListener('click', resumePlay);
+                    document.removeEventListener('touchstart', resumePlay);
+                };
+                document.addEventListener('click', resumePlay);
+                document.addEventListener('touchstart', resumePlay);
+            });
+        };
+
+        // Check LocalStorage for preference
+        const autoPlayPref = localStorage.getItem('musicAutoPlay');
+
+        if (autoPlayPref === 'true') {
+            // User previously said YES + Remember
+            playMusic();
+            
+            // WeChat compatibility for auto-play
+            if (typeof WeixinJSBridge !== 'undefined') {
+                WeixinJSBridge.invoke('getNetworkType', {}, playMusic);
+            } else {
+                document.addEventListener("WeixinJSBridgeReady", playMusic);
+            }
+        } else if (autoPlayPref === 'false') {
+            // User previously said NO + Remember -> Do nothing
+        } else {
+            // No preference -> Show Modal
+            if (musicModal) {
+                // Small delay for smooth entrance
+                setTimeout(() => {
+                    musicModal.classList.add('active');
+                }, 800);
+            }
+        }
+
+        // Global handler for the music modal
+        window.handleMusicChoice = (shouldPlay) => {
+            const remember = document.getElementById('music-remember').checked;
+
+            if (shouldPlay) {
+                playMusic();
+                if (remember) {
+                    localStorage.setItem('musicAutoPlay', 'true');
+                }
+            } else {
+                if (remember) {
+                    localStorage.setItem('musicAutoPlay', 'false');
+                }
+            }
+
+            // Close modal
+            if (musicModal) {
+                musicModal.classList.remove('active');
+            }
+        };
+    }
+});
+
+// Modal Logic
+window.openModal = function(title, data, iconClass) {
+    const modal = document.getElementById('contact-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalData = document.getElementById('modal-data');
+    const modalIcon = document.getElementById('modal-icon');
+    
+    if (modal && modalTitle && modalData && modalIcon) {
+        modalTitle.textContent = title;
+        modalData.textContent = data;
+        modalIcon.className = iconClass;
+        modal.classList.add('active');
+    }
+};
+
+window.closeModal = function() {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+};
+
+window.copyData = function() {
+    const dataBox = document.getElementById('modal-data');
+    if (dataBox) {
+        navigator.clipboard.writeText(dataBox.textContent).then(() => {
+            const toast = document.getElementById('copy-toast');
+            if (toast) {
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            // Fallback for older browsers
+            const range = document.createRange();
+            range.selectNode(dataBox);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            
+            const toast = document.getElementById('copy-toast');
+            if (toast) {
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+        });
+    }
+};
+
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('contact-modal');
+    const modalBox = document.querySelector('.modal-box');
+    if (modal && modal.classList.contains('active') && !modalBox.contains(e.target) && !e.target.closest('.social-btn')) {
+        closeModal();
+    }
+});
+
+// Register Service Worker for Caching
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
 }

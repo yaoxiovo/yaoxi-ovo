@@ -4,6 +4,6 @@
 			"source": "/",
 			"destination": "https://yaoxi-ovo.ba30df2f.er.aliyun-esa.net",
 			"statusCode": 302
-		},
+		}
 	]
 }

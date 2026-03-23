@@ -52,6 +52,24 @@
                 <article class="card">
                     <div class="card-content-wrapper">
                         <div class="card-header">
+                            <div class="card-icon"><i class="ri-timer-line"></i></div>
+                            <h2 class="card-title">中考倒计时</h2>
+                        </div>
+                        <div class="card-body" style="text-align: center; padding: 10px 0;">
+                            <p style="font-size: 11px; opacity: 0.6; font-family: monospace;">// System Upgrade Progress</p>
+                            <h2 style="font-size: 38px; color: var(--accent); margin: 8px 0; font-weight: 800;">
+                                <span id="days-count">--</span> <small style="font-size: 14px; color: var(--text-soft);">Days</small>
+                            </h2>
+                            <div id="countdown-status" style="font-size: 10px; font-family: monospace; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 6px; display: inline-block; border: 1px solid var(--ios-glass-border);">
+                                Initializing...
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-content-wrapper">
+                        <div class="card-header">
                             <div class="card-icon"><i class="ri-user-smile-line"></i></div>
                             <h2 class="card-title">关于我</h2>
                         </div>
@@ -150,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Music Consent Modal -->
         <div id="music-modal" class="modal-overlay">
             <div class="modal-box">
                 <div class="modal-icon-wrapper">
@@ -171,7 +188,6 @@
             </div>
         </div>
 
-        <!-- Hidden audio player -->
         <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
     </div>
 

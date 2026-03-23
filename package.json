@@ -1,7 +1,0 @@
-{
-  "name": "yaoxi-personal-page",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "mkdir -p dist && rsync -av --exclude='dist' --exclude='node_modules' --exclude='.git' ./ dist/"
-  }
-}

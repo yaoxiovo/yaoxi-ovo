@@ -3,182 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>yaoxi | 主页</title>
-    <link rel="icon" type="image/jpeg" href="favicon.jpg">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script defer src="https://umami.yaoxi.xyz/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
+    <meta name="description" content="小狐务器 - 全栈开发者 | 设计师 | 创作者的个人主页">
+    <title>个人主页</title>
+    <!-- 关键资源预加载 -->
+    <link rel="preload" href="ZQKNNY-Medium-2.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- 关键样式（首屏渲染必需） -->
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/word.css">
+    <link rel="stylesheet" href="style/new.css">
+    <link rel="stylesheet" href="style/icon.css">
+    <!-- 非关键样式（异步加载，不阻塞首屏） -->
+    <link rel="stylesheet" href="style/lan.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="style/aoo.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="style/music-player.css" media="print" onload="this.media='all'">
 </head>
 <body>
-    <div class="background">
-        <video autoplay muted loop playsinline>
-            <source src="home.mp4" type="video/mp4">
-        </video>
+    <div class="bg">
+        <div class="pattern-bg">
+            <svg class="cube-svg" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="cube" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+                        <path d="M30 0 L60 15 L60 41 L30 52 L0 41 L0 15 Z" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                        <path d="M30 26 L60 15 M30 26 L0 15 M30 26 L30 52" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#cube)"/>
+            </svg>
+        </div>
     </div>
-  
-    <div class="page">
-        <header class="top-bar">
-            <div class="top-left">
-                <div class="status-dot"></div>
-                <div class="page-info">
-                    <span class="page-title">YaoXi</span>
-                    <span class="page-subtitle">Profile</span>
+    <div class="bg-blur"></div>
+    <div class="container">
+        <!-- 左侧栏 -->
+        <aside class="sidebar">
+            <!-- 头像 -->
+            <div class="avatar-card">
+                <div class="avatar">
+                    <div class="avatar-placeholder">头像</div>
                 </div>
             </div>
-            <div class="top-right">
-                <span class="location"><i class="ri-map-pin-line"></i> 云浮, CN</span>
-                <span class="time-display" id="clock">00:00</span>
+
+            <!-- 社交媒体滚动 -->
+            <div class="content" id="appMarquee"></div>
+
+            <!-- 联系方式图标 -->
+            <div class="glass-radio-group">
+                <input type="radio" name="icon" id="glass-mail" checked>
+                <label for="glass-mail" aria-label="邮件">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </label>
+                <input type="radio" name="icon" id="glass-chat">
+                <label for="glass-chat" aria-label="微信">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg>
+                </label>
+                <input type="radio" name="icon" id="glass-link">
+                <label for="glass-link" aria-label="链接">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </label>
+                <input type="radio" name="icon" id="glass-phone">
+                <label for="glass-phone" aria-label="手机">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                </label>
+                <div class="glass-glider"></div>
             </div>
-        </header>
 
-        <main class="content">
-            <section class="avatar-wrapper">
-                <div class="avatar-circle">
-                    <div class="avatar-inner">
-                        <img src="avatar.jpg" alt="瑶曦">
+            <!-- 导航列表 -->
+            <div class="radio-container" style="--total-radio: 5;">
+                <input type="radio" name="nav" id="nav-about" checked>
+                <label for="nav-about">简介</label>
+                <input type="radio" name="nav" id="nav-skills">
+                <label for="nav-skills">技能</label>
+                <input type="radio" name="nav" id="nav-posts" style="display:none">
+                <label for="nav-posts" style="display:none">帖子</label>
+                <input type="radio" name="nav" id="nav-projects">
+                <label for="nav-projects">项目</label>
+                <input type="radio" name="nav" id="nav-contact">
+                <label for="nav-contact">联系</label>
+                <div class="glider-container">
+                    <div class="glider"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <main class="main-content">
+            <!-- 移动端头像（仅小屏显示） -->
+            <div class="mobile-avatar-card" id="mobileAvatarCard">
+                <div class="mobile-avatar">
+                    <div class="avatar-placeholder">头像</div>
+                </div>
+            </div>
+
+            <div class="announcement-bar fade-in" id="announcementBar" style="display:none;">
+                <a id="announcementLinkEl" href="#" target="_blank" rel="noopener noreferrer">
+                    <span id="announcementTextEl"></span>
+                </a>
+            </div>
+
+            <!-- 标题 -->
+            <div class="title-card fade-in">
+                <h1 class="title-wrap">
+                    <span class="title-prefix">欢迎来到</span><span class="title">小狐务器</span>
+                </h1>
+            </div>
+
+            <!-- 副标题 -->
+            <div class="subtitle-card fade-in">
+                <h2 class="subtitle-wrap">
+                    <span class="subtitle-prefix">Welcome everyone to my website</span><span class="subtitle-name">Xiaohu Server</span>
+                </h2>
+            </div>
+
+            <!-- 像素文字 -->
+            <div class="pixel-banner fade-in">
+                <div class="pixel-grid" id="pixelGrid"></div>
+            </div>
+
+            <!-- 个人简介 -->
+            <div class="intro-card fade-in" id="about">
+                <h3 class="section-title">个人简介</h3>
+                <p class="intro-text">
+                    我是一个热爱前端与视觉设计的开发者，喜欢折腾各种炫酷但不浮夸的交互效果，
+                    也在不断打磨自己在工程化、性能优化和产品体验上的能力。如果你有有趣的想法、
+                    项目或合作机会，欢迎随时通过下方联系方式或邮件模块来找我聊聊。
+                </p>
+            </div>
+
+            <!-- 技能展示 -->
+            <div class="skills-card fade-in" id="skills">
+                <h3 class="section-title">技能</h3>
+                <div class="skills-grid">
+                    <span class="skill-tag">HTML / CSS</span>
+                    <span class="skill-tag">JavaScript</span>
+                    <span class="skill-tag">TypeScript</span>
+                    <span class="skill-tag">Vue.js</span>
+                    <span class="skill-tag">React</span>
+                    <span class="skill-tag">Node.js</span>
+                    <span class="skill-tag">UI/UX 设计</span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">Webpack</span>
+                    <span class="skill-tag">Docker</span>
+                </div>
+            </div>
+
+            <!-- 帖子展示 -->
+            <div class="posts-card fade-in" id="posts">
+                <h3 class="section-title">帖子</h3>
+                <div class="posts-grid" id="postsGrid">
+                    <div class="posts-loading">
+                        <svg class="posts-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                        </svg>
+                        <span>加载中...</span>
                     </div>
                 </div>
-                <div class="avatar-info">
-                    <h1 class="avatar-name">瑶曦</h1>
-                    <div class="avatar-tags">
-                        <span class="avatar-tag">学生</span>
-                        <span class="avatar-tag">前端新人</span>
+            </div>
+
+            <!-- 项目展示 -->
+            <div class="projects-card fade-in" id="projects">
+                <h3 class="section-title">项目</h3>
+                <div class="projects-grid">
+                    <a class="project-item project-link" href="http://www.rainvps.cn" target="_blank" rel="noopener noreferrer">
+                        <div class="project-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <div class="project-title">个人主页</div>
+                        <div class="project-desc">基于玻璃拟态风格的个人展示页面</div>
+                    </a>
+                    <a class="project-item project-link" href="http://www.rainvps.cn" target="_blank" rel="noopener noreferrer">
+                        <div class="project-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        </div>
+                        <div class="project-title">开源工具</div>
+                        <div class="project-desc">实用的开发者效率工具集</div>
+                    </a>
+                    <a class="project-item project-link" href="http://www.rainvps.cn" target="_blank" rel="noopener noreferrer">
+                        <div class="project-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        </div>
+                        <div class="project-title">UI 组件库</div>
+                        <div class="project-desc">可复用的前端界面组件</div>
+                    </a>
+                    <a class="project-item project-link" href="http://www.rainvps.cn" target="_blank" rel="noopener noreferrer">
+                        <div class="project-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+                        </div>
+                        <div class="project-title">创意作品</div>
+                        <div class="project-desc">视觉设计与交互实验</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 联系方式 + 邮件回复 -->
+            <div class="comms-card fade-in" id="contact">
+                <div class="comms-header">
+                    <h3 class="section-title comms-title">联系我</h3>
+                    <p class="comms-subtitle">你可以直接查看联系方式，或写一封邮件给我。</p>
+                </div>
+
+                <div class="comms-grid">
+                    <section class="comms-col comms-contact" aria-label="联系方式">
+                        <h4 class="comms-col-title">联系方式</h4>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 15a3.5 3.5 0 0 0 8 0"/></svg>
+                                QQ: 12345678
+                            </div>
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg>
+                                WeChat: example_wechat
+                            </div>
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                Email: example@email.com
+                            </div>
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                                GitHub: github.com/username
+                            </div>
+                            
+                            <!-- 终端风格展示 -->
+                            <div class="terminal-card fade-in" id="terminalCard" style="display:none">
+                                <div class="terminal-header">
+                                    <div class="terminal-dots">
+                                        <span class="terminal-dot terminal-dot-red"></span>
+                                        <span class="terminal-dot terminal-dot-yellow"></span>
+                                        <span class="terminal-dot terminal-dot-green"></span>
+                                    </div>
+                                    <span class="terminal-title" id="terminalTitle">bash</span>
+                                </div>
+                                <div class="terminal-body" id="terminalBody">
+                                </div>
+                            </div>
+                        </div>
+                    </section>                      
+
+                    <div class="comms-divider" aria-hidden="true"></div>
+
+                    <section class="comms-col comms-email" aria-label="邮件回复">
+                        <div class="email-header">
+                            <div class="email-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
+                                    <polyline points="3 6 12 13 21 6" />
+                                </svg>
+                            </div>
+                            <div class="email-header-text">
+                                <h4 class="comms-col-title email-title">邮件回复</h4>
+                                <p class="email-subtitle">写下你的问题或想法，我会通过邮箱回复你。</p>
+                            </div>
+                        </div>
+                        <form class="email-form" id="emailReplyForm">
+                            <div class="email-row email-row-inline">
+                                <div class="email-field">
+                                    <label class="email-label" for="email-name">称呼</label>
+                                    <input class="email-input" type="text" id="email-name" name="name" placeholder="怎么称呼你？">
+                                </div>
+                                <div class="email-field">
+                                    <label class="email-label" for="email-from">邮箱</label>
+                                    <input class="email-input" type="email" id="email-from" name="from" placeholder="用于回复你的邮箱">
+                                </div>
+                            </div>
+                            <div class="email-row">
+                                <label class="email-label" for="email-message">留言内容</label>
+                                <textarea class="email-textarea" id="email-message" name="message" rows="3" placeholder="写下你想对我说的话..."></textarea>
+                            </div>
+                            <div class="email-row">
+                                <label class="email-label">附带图片（可选）</label>
+                                <div class="email-image-upload" id="emailImageUpload">
+                                    <input type="file" id="emailImageFile" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+                                    <div class="email-image-placeholder" id="emailImagePlaceholder">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        <span>点击或拖拽上传图片（最大 2MB）</span>
+                                    </div>
+                                    <div class="email-image-preview" id="emailImagePreview" style="display:none">
+                                        <img id="emailImagePreviewImg" src="" alt="预览">
+                                        <button type="button" class="email-image-remove" id="emailImageRemove" title="移除图片">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="email-actions">
+                                <button class="email-submit" type="submit">发送邮件</button>
+                                <p class="email-hint">将使用默认邮箱客户端发送。</p>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </div>
+
+            <!-- 回复展示区 -->
+            <div class="replies-card fade-in" id="replies">
+                <h3 class="section-title">最近回复</h3>
+                <div class="replies-list" id="repliesList">
+                    <div class="replies-loading">
+                        <svg class="replies-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                        </svg>
+                        <span>加载中...</span>
                     </div>
                 </div>
-            </section>
-
-            <section class="cards-grid">
-                <article class="card">
-                    <div class="card-content-wrapper">
-                        <div class="card-header">
-                            <div class="card-icon"><i class="ri-timer-line"></i></div>
-
-                            <h2 class="card-title">关于我</h2>
-                        </div>
-                        <div class="card-body">
-                            <p>你好 我是Yaoxi 一名正在学习前端的高二学生</p>
-                            <p>目前专注于 <strong>HTML5 & CSS3</strong> 的学习，希望能创造出既美丽又实用的网页界面</p>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="card-content-wrapper">
-                        <div class="card-header">
-                            <div class="card-icon"><i class="ri-book-open-line"></i></div>
-                            <h2 class="card-title">学习经历</h2>
-                        </div>
-                        <div class="card-body">
-                            <p style="margin-bottom: 8px;"><strong>不告诉你，嘻嘻嘻</strong></p>
-                            <p>虽然学业繁忙 但我依然保持着对计算机技术的热爱 在校期间自学 Web 开发基础和简单的 UI 设计</p>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="card-content-wrapper">
-                        <div class="card-header">
-                            <div class="card-icon"><i class="ri-code-s-slash-line"></i></div>
-                            <h2 class="card-title">技能树</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="skill-item">
-                                <div class="skill-meta"><span>HTML / CSS</span><span>45%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 45%"></div></div>
-                            </div>
-                            <div class="skill-item">
-                                <div class="skill-meta"><span>JavaScript</span><span>20%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 20%"></div></div>
-                            </div>
-                            <div class="skill-item">
-                                <div class="skill-meta"><span>Design</span><span>2%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 2%"></div></div>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="card-content-wrapper">
-                        <div class="card-header">
-                            <div class="card-icon"><i class="ri-share-forward-line"></i></div>
-                            <h2 class="card-title">找到我</h2>
-                        </div>
-                        <div class="card-body">
-                            <p>欢迎交流学习心得！</p>
-                            <div class="social-links">
-                                <div class="social-btn" onclick="openModal('QQ', '3487445594', 'ri-qq-fill')">
-                                    <i class="ri-qq-fill"></i> QQ
-                                </div>
-                                <div class="social-btn" onclick="openModal('Email', 'yaoxiovo@gmail.com', 'ri-mail-send-fill')">
-                                    <i class="ri-mail-send-fill"></i> Email
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            </section>
+            </div>
         </main>
-
-<footer class="footer-credit">
-    <div class="footer-container" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-        <div class="credit-capsule">
-            <span>Designed by</span>
-            <a href="https://xingyu.ink" target="_blank" class="credit-link">星浴</a>
-        </div>
-        <div class="icp-info" style="font-size: 12px; opacity: 0.6;">
-            <a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit; text-decoration: none;">
-                桂ICP备2025055890号
-            </a>
-        </div>
-    </div>
-</footer>
-
-        <div id="contact-modal" class="modal-overlay">
-            <div class="modal-box">
-                <div class="toast" id="copy-toast">已复制到剪贴板</div>
-                
-                <div class="modal-icon-wrapper">
-                    <i id="modal-icon" class="ri-chat-smile-3-line"></i>
-                </div>
-                
-                <h3 class="modal-title" id="modal-title">联系方式</h3>
-                <p class="modal-desc">点击下方按钮即可复制</p>
-                
-                <div class="modal-data-box" id="modal-data">
-                    Loading...
-                </div>
-                
-                <div class="modal-actions">
-                    <button class="modal-btn btn-cancel" onclick="closeModal()">关闭</button>
-                    <button class="modal-btn btn-copy" onclick="copyData()">复制</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="music-modal" class="modal-overlay">
-            <div class="modal-box">
-                <div class="modal-icon-wrapper">
-                    <i class="ri-music-2-line"></i>
-                </div>
-                <h3 class="modal-title">播放音乐</h3>
-                <p class="modal-desc">是否播放背景音乐？</p>
-                
-                <div class="modal-checkbox-wrapper">
-                    <input type="checkbox" id="music-remember">
-                    <label for="music-remember">记住我的选择</label>
-                </div>
-                
-                <div class="modal-actions">
-                    <button class="modal-btn btn-cancel" onclick="handleMusicChoice(false)">拒绝</button>
-                    <button class="modal-btn btn-copy" onclick="handleMusicChoice(true)">播放</button>
-                </div>
-            </div>
-        </div>
-
-        <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
     </div>
 
-    <script src="main.js"></script>
+<!-- 随机音乐播放器 -->
+<div class="music-player" id="musicPlayer">
+    <div class="music-cover">
+        <img id="musicCover" src="" alt="封面">
+        <div class="music-cover-placeholder" id="musicCoverPlaceholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+        </div>
+    </div>
+    <div class="music-info">
+        <div class="music-title" id="musicTitle">点击播放</div>
+        <div class="music-artist" id="musicArtist">随机音乐</div>
+    </div>
+    <div class="music-controls">
+        <button class="music-btn" id="musicPrev" title="上一首">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+            </svg>
+        </button>
+        <button class="music-btn music-play-btn" id="musicPlay" title="播放/暂停">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+        </button>
+        <button class="music-btn" id="musicNext" title="下一首">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+            </svg>
+        </button>
+    </div>
+    <audio id="musicAudio" preload="metadata"></audio>
+</div>
+
+<div class="project-confirm-overlay" id="projectConfirmOverlay" aria-hidden="true">
+    <div class="project-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="projectConfirmTitle">
+        <h3 id="projectConfirmTitle">即将跳转到外部链接</h3>
+        <p class="project-confirm-text">你将离开当前站点，是否继续访问该项目页面？</p>
+        <p class="project-confirm-url" id="projectConfirmUrl"></p>
+        <div class="project-confirm-actions">
+            <button type="button" class="project-confirm-btn project-confirm-cancel" id="projectConfirmCancel">取消</button>
+            <button type="button" class="project-confirm-btn project-confirm-ok" id="projectConfirmOk">继续访问</button>
+        </div>
+    </div>
+</div>
+
+    <!-- 脚本 -->
+    <script src="js/main.js" defer></script>
+    <script>
+    (function(){
+        function loadMusicPlayer(){
+            var s=document.createElement('script');
+            s.src='js/music-player.js';
+            document.body.appendChild(s);
+        }
+        if(document.readyState==='complete') setTimeout(loadMusicPlayer,2000);
+        else window.addEventListener('load',function(){setTimeout(loadMusicPlayer,2000);});
+    })();
+    </script>
 </body>
 </html>

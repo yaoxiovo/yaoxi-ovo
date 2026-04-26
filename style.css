@@ -212,6 +212,7 @@ body {
 .card:nth-child(2) { animation-delay: 0.15s; }
 .card:nth-child(3) { animation-delay: 0.2s; }
 .card:nth-child(4) { animation-delay: 0.25s; }
+.card:nth-child(5) { animation-delay: 0.3s; }
 
 .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 
@@ -275,6 +276,48 @@ body {
 }
 .social-btn:hover i { color: #000; }
 .social-btn i { font-size: 16px; color: rgba(255,255,255,0.8); transition: color 0.2s; }
+
+.project-link {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.project-link:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+  border-color: rgba(255,255,255,0.18);
+}
+
+.project-link-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-link-label strong {
+  font-size: 14px;
+  color: #fff;
+}
+
+.project-link-label span {
+  font-size: 12px;
+  color: rgba(255,255,255,0.68);
+}
+
+.project-link i {
+  font-size: 18px;
+  color: rgba(255,255,255,0.82);
+}
 
 /* --- 底部版权 --- */
 .footer-credit {

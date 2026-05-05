@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Clock Functionality
     function updateClock() {
         const now = new Date();
         const timeString = now.toLocaleTimeString('zh-CN', { 
@@ -19,9 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
             html.classList.remove("light");
         }
     }
-
-    updateClock();
-    setInterval(updateClock, 1000);
+    
+     // 每小时更新一次天数
 
     // Music Player Logic
     const audio = document.getElementById('bgMusic');

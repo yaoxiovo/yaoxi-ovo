@@ -1,0 +1,25 @@
+{
+  "name": "瑶曦 Yaoxi",
+  "short_name": "Yaoxi",
+  "description": "瑶曦 Yaoxi 的个人主页，记录前端学习、个人项目与联系方式。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050816",
+  "theme_color": "#050816",
+  "icons": [
+    {
+      "src": "/avatar.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

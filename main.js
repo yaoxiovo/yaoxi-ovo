@@ -21,34 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 自动化倒计时逻辑
-    function updateCountdown() {
-        const targetDate = new Date('2026-06-30T00:00:00').getTime();
-        const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
-        
-        const daysDisplay = document.getElementById('days-count');
-        const statusDisplay = document.getElementById('countdown-status');
-
-        if (daysDisplay) {
-            daysDisplay.innerText = days > 0 ? days : 0;
-        }
-        
-        if (statusDisplay) {
-            if (days > 0) {
-                statusDisplay.innerText = `> System: ${days}d to Deployment`;
-            } else {
-                statusDisplay.innerText = `> Status: v1.0.0 Deployed`;
-            }
-        }
-    }
-    
-    updateClock();
-    updateCountdown(); // 页面加载时立即运行
-    setInterval(updateClock, 1000);
-    setInterval(updateCountdown, 3600000); // 每小时更新一次天数
+     // 每小时更新一次天数
 
     // Music Player Logic
     const audio = document.getElementById('bgMusic');

@@ -3,49 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>yaoxi | 主页</title>
-    <meta name="description" content="Yaoxi 的个人主页，记录一名前端新人的学习方向、个人简介与联系方式。">
+    <title>yaoxi | 个人主页</title>
+    <meta name="description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
     <meta name="author" content="Yaoxi">
-    <meta name="robots" content="index,follow">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#050816">
-    <meta property="og:type" content="website">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="format-detection" content="telephone=no,email=no,address=no">
+
+    <meta property="og:type" content="profile">
     <meta property="og:locale" content="zh_CN">
-    <meta property="og:title" content="yaoxi | 主页">
-    <meta property="og:description" content="Yaoxi 的个人主页，记录一名前端新人的学习方向、个人简介与联系方式。">
+    <meta property="og:title" content="yaoxi | 个人主页">
+    <meta property="og:description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
     <meta property="og:url" content="https://yaoxi.wiki/">
     <meta property="og:site_name" content="Yaoxi">
     <meta property="og:image" content="https://yaoxi.wiki/avatar.jpg">
+
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="yaoxi | 主页">
-    <meta name="twitter:description" content="Yaoxi 的个人主页，记录一名前端新人的学习方向、个人简介与联系方式。">
+    <meta name="twitter:title" content="yaoxi | 个人主页">
+    <meta name="twitter:description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
     <meta name="twitter:image" content="https://yaoxi.wiki/avatar.jpg">
+
     <link rel="canonical" href="https://yaoxi.wiki/">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://umami.yaoxi.xyz" crossorigin>
-    <link rel="icon" type="image/jpeg" href="favicon.jpg">
+    <link rel="preload" href="/avatar.jpg" as="image" fetchpriority="high">
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://umami.yaoxi.xyz/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Yaoxi",
-            "url": "https://yaoxi.wiki/",
-            "image": "https://yaoxi.wiki/avatar.jpg",
-            "description": "一名前端新人，用个人主页记录自己的学习方向与联系方式。",
-            "jobTitle": "Student",
-            "email": "yaoxiovo@gmail.com"
+            "@graph": [
+                {
+                    "@type": "WebSite",
+                    "@id": "https://yaoxi.wiki/#website",
+                    "url": "https://yaoxi.wiki/",
+                    "name": "Yaoxi",
+                    "inLanguage": "zh-CN"
+                },
+                {
+                    "@type": "ProfilePage",
+                    "@id": "https://yaoxi.wiki/#profile-page",
+                    "url": "https://yaoxi.wiki/",
+                    "name": "yaoxi | 个人主页",
+                    "isPartOf": {
+                        "@id": "https://yaoxi.wiki/#website"
+                    },
+                    "about": {
+                        "@id": "https://yaoxi.wiki/#person"
+                    }
+                },
+                {
+                    "@type": "Person",
+                    "@id": "https://yaoxi.wiki/#person",
+                    "name": "Yaoxi",
+                    "alternateName": "瑶曦",
+                    "url": "https://yaoxi.wiki/",
+                    "image": "https://yaoxi.wiki/avatar.jpg",
+                    "description": "一名前端新人，用个人主页记录学习方向与联系方式。",
+                    "jobTitle": "Student",
+                    "email": "yaoxiovo@gmail.com",
+                    "sameAs": [
+                        "https://blog.yaoxi.wiki"
+                    ]
+                }
+            ]
         }
     </script>
 </head>
 <body>
-    <div class="background">
-        <video autoplay muted loop playsinline>
-            <source src="home.mp4" type="video/mp4">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <noscript>
+        <p class="noscript-tip">当前浏览器禁用了 JavaScript，页面中的复制弹窗和音乐交互不可用。</p>
+    </noscript>
+
+    <div class="background" aria-hidden="true">
+        <video autoplay muted loop playsinline preload="metadata" poster="/mobile-bg.jpg">
+            <source src="/home.mp4" type="video/mp4">
         </video>
     </div>
-  
+
     <div class="page">
         <header class="top-bar">
             <div class="top-left">
@@ -61,11 +102,11 @@
             </div>
         </header>
 
-        <main class="content">
+        <main class="content" id="main-content">
             <section class="avatar-wrapper">
                 <div class="avatar-circle">
                     <div class="avatar-inner">
-                        <img src="avatar.jpg" alt="瑶曦">
+                        <img src="/avatar.jpg" alt="瑶曦头像" width="256" height="256" loading="eager" decoding="async" fetchpriority="high">
                     </div>
                 </div>
                 <div class="avatar-info">
@@ -82,12 +123,11 @@
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-timer-line"></i></div>
-
                             <h2 class="card-title">关于我</h2>
                         </div>
                         <div class="card-body">
-                            <p>你好 我是Yaoxi 一名正在学习前端的高二学生</p>
-                            <p>目前专注于 <strong>HTML5 & CSS3</strong> 的学习，希望能创造出既美丽又实用的网页界面</p>
+                            <p>你好，我是 Yaoxi，一名正在学习前端的高二学生。</p>
+                            <p>目前专注于 <strong>HTML5 &amp; CSS3</strong>，希望创造既美观又实用的网页界面。</p>
                         </div>
                     </div>
                 </article>
@@ -99,8 +139,8 @@
                             <h2 class="card-title">学习经历</h2>
                         </div>
                         <div class="card-body">
-                            <p style="margin-bottom: 8px;"><strong>不告诉你，嘻嘻嘻</strong></p>
-                            <p>虽然学业繁忙 但我依然保持着对计算机技术的热爱 在校期间自学 Web 开发基础和简单的 UI 设计</p>
+                            <p class="card-highlight"><strong>不告诉你，嘻嘻嘻</strong></p>
+                            <p>虽然学业繁忙，但我依然保持对计算机技术的热爱，在校期间自学 Web 开发基础和简单 UI 设计。</p>
                         </div>
                     </div>
                 </article>
@@ -135,14 +175,14 @@
                             <h2 class="card-title">找到我</h2>
                         </div>
                         <div class="card-body">
-                            <p>欢迎交流学习心得！</p>
+                            <p>欢迎交流学习心得。</p>
                             <div class="social-links">
-                                <div class="social-btn" onclick="openModal('QQ', '3487445594', 'ri-qq-fill')">
+                                <button class="social-btn" type="button" data-contact-title="QQ" data-contact-value="3487445594" data-contact-icon="ri-qq-fill">
                                     <i class="ri-qq-fill"></i> QQ
-                                </div>
-                                <div class="social-btn" onclick="openModal('Email', 'yaoxiovo@gmail.com', 'ri-mail-send-fill')">
+                                </button>
+                                <button class="social-btn" type="button" data-contact-title="Email" data-contact-value="yaoxiovo@gmail.com" data-contact-icon="ri-mail-send-fill">
                                     <i class="ri-mail-send-fill"></i> Email
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -169,63 +209,55 @@
             </section>
         </main>
 
-<footer class="footer-credit">
-    <div class="footer-container" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-        <div class="credit-capsule">
-            <span>Designed by</span>
-            <a href="https://xingyu.ink" target="_blank" class="credit-link">星浴</a>
-        </div>
-        <div class="icp-info" style="font-size: 12px; opacity: 0.6;">
-            <a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit; text-decoration: none;">
-                桂ICP备2025055890号
-            </a>
-        </div>
-    </div>
-</footer>
+        <footer class="footer-credit">
+            <div class="footer-container">
+                <div class="credit-capsule">
+                    <span>Designed by</span>
+                    <a href="https://xingyu.ink" target="_blank" class="credit-link" rel="noopener noreferrer">星浴</a>
+                </div>
+                <div class="icp-info">
+                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2025055890号</a>
+                </div>
+            </div>
+        </footer>
 
-        <div id="contact-modal" class="modal-overlay">
+        <div id="contact-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-data">
             <div class="modal-box">
                 <div class="toast" id="copy-toast">已复制到剪贴板</div>
-                
                 <div class="modal-icon-wrapper">
                     <i id="modal-icon" class="ri-chat-smile-3-line"></i>
                 </div>
-                
                 <h3 class="modal-title" id="modal-title">联系方式</h3>
                 <p class="modal-desc">点击下方按钮即可复制</p>
-                
-                <div class="modal-data-box" id="modal-data">
-                    Loading...
-                </div>
-                
+                <div class="modal-data-box" id="modal-data">Loading...</div>
                 <div class="modal-actions">
-                    <button class="modal-btn btn-cancel" onclick="closeModal()">关闭</button>
-                    <button class="modal-btn btn-copy" onclick="copyData()">复制</button>
+                    <button class="modal-btn btn-cancel" type="button" data-close-modal>关闭</button>
+                    <button class="modal-btn btn-copy" type="button" data-copy-contact>复制</button>
                 </div>
             </div>
         </div>
 
-        <div id="music-modal" class="modal-overlay">
+        <div id="music-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="music-modal-title">
             <div class="modal-box">
                 <div class="modal-icon-wrapper">
                     <i class="ri-music-2-line"></i>
                 </div>
-                <h3 class="modal-title">播放音乐</h3>
+                <h3 class="modal-title" id="music-modal-title">播放音乐</h3>
                 <p class="modal-desc">是否播放背景音乐？</p>
-                
+
                 <div class="modal-checkbox-wrapper">
                     <input type="checkbox" id="music-remember">
                     <label for="music-remember">记住我的选择</label>
                 </div>
-                
+
                 <div class="modal-actions">
-                    <button class="modal-btn btn-cancel" onclick="handleMusicChoice(false)">拒绝</button>
-                    <button class="modal-btn btn-copy" onclick="handleMusicChoice(true)">播放</button>
+                    <button class="modal-btn btn-cancel" type="button" data-music-choice="deny">拒绝</button>
+                    <button class="modal-btn btn-copy" type="button" data-music-choice="play">播放</button>
                 </div>
             </div>
         </div>
 
-        <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+        <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
     </div>
 
     <script src="main.js"></script>

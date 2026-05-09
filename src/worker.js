@@ -2,8 +2,8 @@ const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://yaoxi.wiki/</loc>
-    <lastmod>2026-05-05</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 </urlset>
@@ -13,13 +13,14 @@ const ROBOTS_TXT = `User-agent: *
 Allow: /
 
 Sitemap: https://yaoxi.wiki/sitemap.xml
+Host: yaoxi.wiki
 `;
 
 function textResponse(body, contentType, request) {
   return new Response(request.method === "HEAD" ? null : body, {
     headers: {
       "content-type": contentType,
-      "cache-control": "public, max-age=3600",
+      "cache-control": "public, max-age=600",
       "x-content-type-options": "nosniff"
     }
   });

@@ -1,77 +1,91 @@
-const CACHE_NAME = 'yaoxi-home-v1';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './style.css',
-  './main.js',
-  './home.mp4',
-  './avatar.jpg',
-  './favicon.jpg',
-  './music.mp3',
-  './mobile-bg.jpg'
+const CACHE_NAME = "yaoxi-home-v2";
+const SHELL_CACHE = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/main.js",
+  "/avatar.jpg",
+  "/favicon.jpg",
+  "/mobile-bg.jpg",
+  "/site.webmanifest",
+  "/robots.txt",
+  "/sitemap.xml"
 ];
 
-// 安装事件：预缓存关键资源
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Service Worker: Caching assets');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_CACHE))
   );
-  // 立即激活，跳过等待
   self.skipWaiting();
 });
 
-// 激活事件：清理旧缓存
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Clearing old cache');
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+    )
   );
-  // 立即接管所有页面
   self.clients.claim();
 });
 
-// 拦截请求
-self.addEventListener('fetch', (event) => {
-  // 对于视频文件，使用特殊处理（优先缓存，支持断点续传的简化版）
-  // 注意：完整的 Range 请求支持在 SW 中比较复杂，
-  // 这里使用简单的缓存优先策略，适用于中小型视频
-  
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // 如果缓存中有，直接返回
-      if (response) {
-        return response;
-      }
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  if (request.method !== "GET") return;
+  if (request.headers.has("range")) return;
 
-      // 否则发起网络请求
-      return fetch(event.request).then((networkResponse) => {
-        // 检查响应是否有效
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-        // 这是一个流响应，我们需要克隆它
-        // 因为响应流只能被消耗一次
-        const responseToCache = networkResponse.clone();
+  if (request.mode === "navigate") {
+    event.respondWith(networkFirst(request));
+    return;
+  }
 
-        caches.open(CACHE_NAME).then((cache) => {
-          // 将新资源放入缓存
-          cache.put(event.request, responseToCache);
-        });
+  const isStaticAsset = /\.(?:css|js|json|png|jpg|jpeg|webp|svg|ico|txt|xml)$/i.test(url.pathname);
+  if (!isStaticAsset) return;
 
-        return networkResponse;
-      });
-    })
-  );
+  event.respondWith(staleWhileRevalidate(request));
 });
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    return cache.match("/index.html");
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const networkFetch = fetch(request)
+    .then((response) => {
+      if (response && response.ok && response.type === "basic") {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    networkFetch.catch(() => null);
+    return cached;
+  }
+
+  const networkResponse = await networkFetch;
+  if (networkResponse) return networkResponse;
+
+  return new Response("Offline", {
+    status: 503,
+    statusText: "Service Unavailable",
+    headers: { "content-type": "text/plain; charset=utf-8" }
+  });
+}

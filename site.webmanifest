@@ -10,9 +10,9 @@
   "theme_color": "#050816",
   "icons": [
     {
-      "src": "/avatar.jpg",
+      "src": "/avatar.webp",
       "sizes": "any",
-      "type": "image/jpeg",
+      "type": "image/webp",
       "purpose": "any"
     },
     {

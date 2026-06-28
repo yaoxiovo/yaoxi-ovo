@@ -1,12 +1,12 @@
-const CACHE_NAME = "yaoxi-home-v2";
+const CACHE_NAME = "yaoxi-home-v3";
 const SHELL_CACHE = [
   "/",
   "/index.html",
   "/style.css",
   "/main.js",
-  "/avatar.jpg",
+  "/avatar.webp",
   "/favicon.jpg",
-  "/mobile-bg.jpg",
+  "/mobile-bg.webp",
   "/site.webmanifest",
   "/robots.txt",
   "/sitemap.xml"

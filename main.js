@@ -165,6 +165,69 @@
             closeContactModal();
             closeMusicModal();
         });
+
+        // 1. 3D 视差倾斜效果 (3D Parallax Tilt)
+        const cards = document.querySelectorAll(".card");
+        const isMouseDevice = window.matchMedia("(hover: hover)").matches;
+
+        if (isMouseDevice) {
+            cards.forEach((card) => {
+                card.addEventListener("mousemove", (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // 计算归一化坐标 (-0.5 到 0.5)
+                    const px = (x / rect.width) - 0.5;
+                    const py = (y / rect.height) - 0.5;
+                    
+                    // 限制最大旋转 12deg
+                    const rx = -py * 12;
+                    const ry = px * 12;
+                    
+                    card.style.setProperty("--rx", `${rx}deg`);
+                    card.style.setProperty("--ry", `${ry}deg`);
+                    card.style.setProperty("--mx", `${x}px`);
+                    card.style.setProperty("--my", `${y}px`);
+                    
+                    card.classList.add("tilt-effect");
+                });
+
+                card.addEventListener("mouseleave", () => {
+                    card.classList.remove("tilt-effect");
+                    card.style.setProperty("--rx", "0deg");
+                    card.style.setProperty("--ry", "0deg");
+                });
+            });
+        }
+
+        // 2. Intersection Observer 触发技能进度条从 0% 加载
+        const skillFills = document.querySelectorAll(".skill-fill");
+        if ("IntersectionObserver" in window) {
+            const skillObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const fill = entry.target;
+                        const percent = fill.getAttribute("data-percent") || "0%";
+                        fill.style.setProperty("--percent", percent);
+                        skillObserver.unobserve(fill);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            skillFills.forEach((fill) => {
+                skillObserver.observe(fill);
+            });
+        } else {
+            // 降级：如果浏览器不支持 IntersectionObserver，直接加载百分比
+            skillFills.forEach((fill) => {
+                const percent = fill.getAttribute("data-percent") || "0%";
+                fill.style.setProperty("--percent", percent);
+            });
+        }
     });
 
     if ("serviceWorker" in navigator) {

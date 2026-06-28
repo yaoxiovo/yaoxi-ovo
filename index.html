@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>yaoxi | 个人主页</title>
-    <meta name="description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
+    <title>yaoxi | 瑶曦的个人主页 - 前端学习与探索</title>
+    <meta name="description" content="瑶曦 Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式，专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索。">
+    <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, 3D视差, PWA">
     <meta name="author" content="Yaoxi">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#050816">
@@ -12,24 +13,26 @@
     <meta name="format-detection" content="telephone=no,email=no,address=no">
 
     <meta property="og:type" content="profile">
-    <meta property="og:locale" content="zh_CN">
-    <meta property="og:title" content="yaoxi | 个人主页">
-    <meta property="og:description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
+    <meta property="og:title" content="yaoxi | 瑶曦的个人主页 - 前端学习与探索">
+    <meta property="og:description" content="瑶曦 Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式，专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索。">
     <meta property="og:url" content="https://yaoxi.wiki/">
     <meta property="og:site_name" content="Yaoxi">
-    <meta property="og:image" content="https://yaoxi.wiki/avatar.jpg">
+    <meta property="og:image" content="https://yaoxi.wiki/avatar.webp">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="yaoxi | 个人主页">
-    <meta name="twitter:description" content="Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式。">
-    <meta name="twitter:image" content="https://yaoxi.wiki/avatar.jpg">
+    <meta name="twitter:title" content="yaoxi | 瑶曦的个人主页 - 前端学习与探索">
+    <meta name="twitter:description" content="瑶曦 Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式，专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索。">
+    <meta name="twitter:image" content="https://yaoxi.wiki/avatar.webp">
 
     <link rel="canonical" href="https://yaoxi.wiki/">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://umami.yaoxi.xyz" crossorigin>
-    <link rel="preload" href="/avatar.jpg" as="image" fetchpriority="high">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="/avatar.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -63,7 +66,7 @@
                     "name": "Yaoxi",
                     "alternateName": "瑶曦",
                     "url": "https://yaoxi.wiki/",
-                    "image": "https://yaoxi.wiki/avatar.jpg",
+                    "image": "https://yaoxi.wiki/avatar.webp",
                     "description": "一名前端新人，用个人主页记录学习方向与联系方式。",
                     "jobTitle": "Student",
                     "email": "yaoxiovo@gmail.com",
@@ -82,13 +85,13 @@
     </noscript>
 
     <div class="background" aria-hidden="true">
-        <video autoplay muted loop playsinline preload="metadata" poster="/mobile-bg.jpg">
+        <video autoplay muted loop playsinline preload="metadata" poster="/mobile-bg.webp">
             <source src="/home.mp4" type="video/mp4">
         </video>
     </div>
 
     <div class="page">
-        <header class="top-bar">
+        <header class="top-bar" style="--delay: 1">
             <div class="top-left">
                 <div class="status-dot"></div>
                 <div class="page-info">
@@ -103,10 +106,10 @@
         </header>
 
         <main class="content" id="main-content">
-            <section class="avatar-wrapper">
+            <section class="avatar-wrapper" style="--delay: 2">
                 <div class="avatar-circle">
                     <div class="avatar-inner">
-                        <img src="/avatar.jpg" alt="瑶曦头像" width="256" height="256" loading="eager" decoding="async" fetchpriority="high">
+                        <img src="/avatar.webp" alt="瑶曦头像" width="256" height="256" loading="eager" decoding="async" fetchpriority="high">
                     </div>
                 </div>
                 <div class="avatar-info">
@@ -119,7 +122,7 @@
             </section>
 
             <section class="cards-grid">
-                <article class="card">
+                <article class="card" style="--delay: 3">
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-timer-line"></i></div>
@@ -132,7 +135,7 @@
                     </div>
                 </article>
 
-                <article class="card">
+                <article class="card" style="--delay: 4">
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-book-open-line"></i></div>
@@ -140,12 +143,12 @@
                         </div>
                         <div class="card-body">
                             <p class="card-highlight"><strong>不告诉你，嘻嘻嘻</strong></p>
-                            <p>虽然学业繁忙，但我依然保持对计算机技术的热爱，在校期间自学 Web 开发基础和简单 UI 设计。</p>
+                            <p>虽然学业繁忙，但我依然保持对计算机技术的热爱，在校期间自学 Web 开发基础 and 简单 UI 设计。</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="card">
+                <article class="card" style="--delay: 5">
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-code-s-slash-line"></i></div>
@@ -154,21 +157,21 @@
                         <div class="card-body">
                             <div class="skill-item">
                                 <div class="skill-meta"><span>HTML / CSS</span><span>45%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 45%"></div></div>
+                                <div class="skill-track"><div class="skill-fill" style="--percent: 0%" data-percent="45%"></div></div>
                             </div>
                             <div class="skill-item">
                                 <div class="skill-meta"><span>JavaScript</span><span>20%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 20%"></div></div>
+                                <div class="skill-track"><div class="skill-fill" style="--percent: 0%" data-percent="20%"></div></div>
                             </div>
                             <div class="skill-item">
                                 <div class="skill-meta"><span>Design</span><span>2%</span></div>
-                                <div class="skill-track"><div class="skill-fill" style="--percent: 2%"></div></div>
+                                <div class="skill-track"><div class="skill-fill" style="--percent: 0%" data-percent="2%"></div></div>
                             </div>
                         </div>
                     </div>
                 </article>
 
-                <article class="card">
+                <article class="card" style="--delay: 6">
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-share-forward-line"></i></div>
@@ -188,7 +191,7 @@
                     </div>
                 </article>
 
-                <article class="card">
+                <article class="card" style="--delay: 7">
                     <div class="card-content-wrapper">
                         <div class="card-header">
                             <div class="card-icon"><i class="ri-window-line"></i></div>
@@ -209,7 +212,7 @@
             </section>
         </main>
 
-        <footer class="footer-credit">
+        <footer class="footer-credit" style="--delay: 8">
             <div class="footer-container">
                 <div class="credit-capsule">
                     <span>Designed by</span>

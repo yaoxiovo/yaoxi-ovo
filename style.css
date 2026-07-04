@@ -1011,7 +1011,7 @@ html:not(.light) .ssv-card {
 }
 .footer-links-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 40px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 48px;

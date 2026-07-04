@@ -30,13 +30,13 @@
   --ios-blur: blur(20px) saturate(180%);
 }
 
-/* 深色模式适配 */
+/* 深色模式适配 - 尊重主人偏好，强制采用腾讯大厂极简白底 */
 html:not(.light) {
-  --bg-page: #0B0F19; /* 腾讯官网在暗色下的科技黑 */
-  --text-main: #F5F5F5;
-  --text-soft: #A0A0A0;
-  --border-color: #1F293D;
-  --shadow-lg: 0 20px 40px -15px rgba(0, 82, 217, 0.35), 0 0 50px -10px rgba(0, 82, 217, 0.1);
+  --bg-page: #FFFFFF;
+  --text-main: #1A1A1A;
+  --text-soft: #666666;
+  --border-color: #E5E5E5;
+  --shadow-lg: 0 20px 40px -15px rgba(0, 82, 217, 0.05);
 }
 
 body {

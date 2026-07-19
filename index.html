@@ -8,7 +8,8 @@
     <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, 3D视差, PWA">
     <meta name="author" content="Yaoxi">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="theme-color" content="#0052D9">
+    <meta name="theme-color" content="#07101F">
+    <meta name="color-scheme" content="dark light">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no,email=no,address=no">
 
@@ -101,12 +102,12 @@
             </nav>
 
             <div class="nav-right">
-                <div class="lang-selector" aria-label="选择语言">
-                    <span class="lang-item active">简</span>
-                    <span class="s-line">|</span>
-                    <span class="lang-item">繁</span>
-                    <span class="s-line">|</span>
-                    <span class="lang-item">EN</span>
+                <div class="lang-selector" role="group" aria-label="选择语言">
+                    <button class="lang-item active" type="button" data-lang="zh-CN" aria-pressed="true">简</button>
+                    <span class="s-line" aria-hidden="true">|</span>
+                    <button class="lang-item" type="button" data-lang="zh-TW" aria-pressed="false">繁</button>
+                    <span class="s-line" aria-hidden="true">|</span>
+                    <button class="lang-item" type="button" data-lang="en" aria-pressed="false">EN</button>
                 </div>
                 <button class="nav-toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
                     <i class="ri-menu-line"></i>
@@ -116,10 +117,10 @@
     </header>
 
     <!-- 幻灯片大横幅 (Hero Carousel - 升级为 3 张幻灯片) -->
-    <section class="hero-carousel" id="intro">
+    <section class="hero-carousel" id="intro" aria-label="瑶曦主页精选内容">
         <div class="carousel-container">
             <!-- Slide 1 -->
-            <div class="carousel-slide active" style="background-image: url('/carousel_bg_1.png');">
+            <div class="carousel-slide active" aria-hidden="false" style="background-image: url('/carousel_bg_1.png');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">瑶曦启动2026前端探索计划</h1>
@@ -129,7 +130,7 @@
             </div>
             
             <!-- Slide 2 -->
-            <div class="carousel-slide" style="background-image: url('/carousel_bg_2.png');">
+            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_2.png');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">致力于创造美观且实用的网页</h1>
@@ -139,7 +140,7 @@
             </div>
 
             <!-- Slide 3 -->
-            <div class="carousel-slide" style="background-image: url('/carousel_bg_3.png');">
+            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_3.png');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">科技向善，探索开源的无限可能</h1>
@@ -148,6 +149,19 @@
                 </div>
             </div>
         </div>
+
+        <aside class="time-widget" id="timeWidget" data-period="night" aria-live="polite" aria-label="当前时间与问候">
+            <div class="time-orbit" aria-hidden="true">
+                <span class="time-orbit-ring"></span>
+                <i class="ri-moon-clear-line" id="timeIcon"></i>
+            </div>
+            <div class="time-copy">
+                <span class="time-greeting" id="timeGreeting">晚上好</span>
+                <time class="time-clock" id="clock">--:--</time>
+                <span class="time-date" id="timeDate">正在同步本地时间</span>
+            </div>
+            <span class="time-zone" aria-hidden="true">LOCAL</span>
+        </aside>
 
         <!-- 极细线条方向箭头 -->
         <div class="carousel-controls">
@@ -159,11 +173,11 @@
             </button>
         </div>
 
-        <!-- 方块指示器 -->
-        <div class="carousel-indicators">
-            <span class="indicator-dot active" data-index="0"></span>
-            <span class="indicator-dot" data-index="1"></span>
-            <span class="indicator-dot" data-index="2"></span>
+        <!-- 幻灯片位置指示器 -->
+        <div class="carousel-indicators" role="group" aria-label="选择幻灯片">
+            <button class="indicator-dot active" type="button" data-index="0" aria-label="切换到第 1 张" aria-current="true"></button>
+            <button class="indicator-dot" type="button" data-index="1" aria-label="切换到第 2 张" aria-current="false"></button>
+            <button class="indicator-dot" type="button" data-index="2" aria-label="切换到第 3 张" aria-current="false"></button>
         </div>
     </section>
 

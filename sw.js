@@ -1,4 +1,4 @@
-const CACHE_NAME = "yaoxi-home-v3";
+const CACHE_NAME = "yaoxi-home-v5-i18n-time";
 const SHELL_CACHE = [
   "/",
   "/index.html",

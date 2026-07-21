@@ -6,6 +6,54 @@
         "zh-TW": "zh-TW",
         "en": "en-US"
     };
+    const THEME_STORAGE_KEY = "yaoxiTheme";
+    const THEME_MODES = ["auto", "light", "dark"];
+    const THEME_ICONS = {
+        auto: "ri-contrast-2-line",
+        light: "ri-sun-line",
+        dark: "ri-moon-clear-line"
+    };
+    const THEME_COPY = {
+        "zh-CN": {
+            labels: {
+                autoToLight: "主题跟随时间，点击切换到浅色模式",
+                autoToDark: "主题跟随时间，点击切换到深色模式",
+                light: "当前为浅色模式，点击切换到深色模式",
+                dark: "当前为深色模式，点击恢复跟随时间"
+            },
+            status: {
+                auto: "已恢复主题跟随时间",
+                light: "已切换到浅色模式",
+                dark: "已切换到深色模式"
+            }
+        },
+        "zh-TW": {
+            labels: {
+                autoToLight: "主題跟隨時間，點擊切換至淺色模式",
+                autoToDark: "主題跟隨時間，點擊切換至深色模式",
+                light: "目前為淺色模式，點擊切換至深色模式",
+                dark: "目前為深色模式，點擊恢復跟隨時間"
+            },
+            status: {
+                auto: "已恢復主題跟隨時間",
+                light: "已切換至淺色模式",
+                dark: "已切換至深色模式"
+            }
+        },
+        "en": {
+            labels: {
+                autoToLight: "Theme follows local time. Switch to light mode",
+                autoToDark: "Theme follows local time. Switch to dark mode",
+                light: "Light mode active. Switch to dark mode",
+                dark: "Dark mode active. Return to automatic mode"
+            },
+            status: {
+                auto: "Theme now follows local time",
+                light: "Light mode enabled",
+                dark: "Dark mode enabled"
+            }
+        }
+    };
 
     const UI_COPY = {
         "跳过导航，直达主体内容": { "zh-TW": "跳過導覽，直達主要內容", "en": "Skip navigation and go to main content" },
@@ -181,6 +229,8 @@
     ];
 
     let currentLanguage = "zh-CN";
+    let currentThemeMode = "auto";
+    let themeTransitionTimer = null;
     let translatableTextNodes = [];
     let translatableAttributes = [];
 
@@ -266,6 +316,9 @@
             contactModalTitle.textContent = translateCopy("联系方式", nextLanguage);
         }
 
+        const themeStatus = document.getElementById("themeStatus");
+        if (themeStatus) themeStatus.textContent = "";
+
         updatePageMeta(nextLanguage);
         updateClockAndTheme();
 
@@ -298,6 +351,102 @@
         });
     }
 
+    function getThemeCopy() {
+        return THEME_COPY[currentLanguage] || THEME_COPY["zh-CN"];
+    }
+
+    function updateThemeControl(announce = false) {
+        const button = document.getElementById("themeToggle");
+        const status = document.getElementById("themeStatus");
+        const copy = getThemeCopy();
+
+        if (button) {
+            const resolvedTheme = document.documentElement.dataset.resolvedTheme || "dark";
+            const labelKey = currentThemeMode === "auto"
+                ? (resolvedTheme === "light" ? "autoToDark" : "autoToLight")
+                : currentThemeMode;
+            const label = copy.labels[labelKey];
+            const icon = button.querySelector("i");
+            button.dataset.themeMode = currentThemeMode;
+            button.setAttribute("aria-label", label);
+            button.setAttribute("title", label);
+            if (icon) icon.className = THEME_ICONS[currentThemeMode];
+        }
+
+        if (announce && status) {
+            status.textContent = copy.status[currentThemeMode];
+        }
+    }
+
+    function applyThemeForHour(hour, announce = false) {
+        const isLight = currentThemeMode === "light" ||
+            (currentThemeMode === "auto" && hour >= 7 && hour < 19);
+        const root = document.documentElement;
+
+        root.classList.toggle("light", isLight);
+        root.dataset.themeMode = currentThemeMode;
+        root.dataset.resolvedTheme = isLight ? "light" : "dark";
+
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) {
+            themeColor.setAttribute("content", isLight ? "#EDF3FC" : "#07101F");
+        }
+
+        updateThemeControl(announce);
+    }
+
+    function setThemeMode(mode, { persist = true, announce = false, animate = false } = {}) {
+        const nextMode = THEME_MODES.includes(mode) ? mode : "auto";
+        const root = document.documentElement;
+        const button = document.getElementById("themeToggle");
+        currentThemeMode = nextMode;
+
+        if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            root.classList.add("theme-changing");
+            button?.classList.add("is-switching");
+            if (themeTransitionTimer) window.clearTimeout(themeTransitionTimer);
+            themeTransitionTimer = window.setTimeout(() => {
+                root.classList.remove("theme-changing");
+                button?.classList.remove("is-switching");
+            }, 480);
+        }
+
+        updateClockAndTheme(announce);
+
+        if (persist) {
+            try {
+                localStorage.setItem(THEME_STORAGE_KEY, nextMode);
+            } catch (error) {
+                console.warn("Theme preference could not be saved:", error);
+            }
+        }
+    }
+
+    function initTheme() {
+        let storedTheme = document.documentElement.dataset.themeMode || "auto";
+
+        try {
+            const saved = localStorage.getItem(THEME_STORAGE_KEY);
+            if (saved && THEME_MODES.includes(saved)) storedTheme = saved;
+        } catch (error) {
+            console.warn("Theme preference could not be read:", error);
+        }
+
+        currentThemeMode = THEME_MODES.includes(storedTheme) ? storedTheme : "auto";
+        updateThemeControl(false);
+
+        const button = document.getElementById("themeToggle");
+        if (button) {
+            button.addEventListener("click", () => {
+                const resolvedTheme = document.documentElement.dataset.resolvedTheme || "dark";
+                const nextMode = currentThemeMode === "auto"
+                    ? (resolvedTheme === "light" ? "dark" : "light")
+                    : (currentThemeMode === "light" ? "dark" : "auto");
+                setThemeMode(nextMode, { persist: true, announce: true, animate: true });
+            });
+        }
+    }
+
     function getTimePeriod(hour) {
         const normalizedHour = hour < 5 ? hour + 24 : hour;
         return TIME_PERIODS.find((period) =>
@@ -306,7 +455,7 @@
     }
 
     // --- 1. 时钟、昼夜状态与主题控制 ---
-    function updateClockAndTheme() {
+    function updateClockAndTheme(announceTheme = false) {
         const now = new Date();
         const locale = LANGUAGE_LOCALES[currentLanguage] || "zh-CN";
         const hour = now.getHours();
@@ -355,13 +504,7 @@
             }
         }
 
-        const isLight = hour >= 7 && hour < 19;
-        document.documentElement.classList.toggle("light", isLight);
-
-        const themeColor = document.querySelector('meta[name="theme-color"]');
-        if (themeColor) {
-            themeColor.setAttribute("content", isLight ? "#EDF3FC" : "#07101F");
-        }
+        applyThemeForHour(hour, announceTheme);
     }
 
     // --- 2. 导航栏滚动与响应式交互 ---
@@ -818,6 +961,7 @@
 
     // --- 初始化执行 ---
     document.addEventListener("DOMContentLoaded", () => {
+        initTheme();
         initLanguage();
         setInterval(updateClockAndTheme, 30 * 1000);
 

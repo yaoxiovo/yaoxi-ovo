@@ -1,9 +1,9 @@
-const CACHE_NAME = "yaoxi-home-v5-i18n-time";
+const CACHE_NAME = "yaoxi-home-v8-theme-control";
 const SHELL_CACHE = [
   "/",
   "/index.html",
-  "/style.css",
-  "/main.js",
+  "/style.css?v=8-theme-control",
+  "/main.js?v=8-theme-control",
   "/avatar.webp",
   "/favicon.jpg",
   "/mobile-bg.webp",

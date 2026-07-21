@@ -13,6 +13,22 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no,email=no,address=no">
 
+    <script>
+        (() => {
+            try {
+                const storedTheme = localStorage.getItem("yaoxiTheme");
+                const themeMode = ["auto", "light", "dark"].includes(storedTheme) ? storedTheme : "auto";
+                const hour = new Date().getHours();
+                const isLight = themeMode === "light" || (themeMode === "auto" && hour >= 7 && hour < 19);
+                document.documentElement.classList.toggle("light", isLight);
+                document.documentElement.dataset.themeMode = themeMode;
+                document.documentElement.dataset.resolvedTheme = isLight ? "light" : "dark";
+            } catch (error) {
+                // 无法读取本地偏好时继续使用默认深色主题。
+            }
+        })();
+    </script>
+
     <meta property="og:type" content="profile">
     <meta property="og:title" content="yaoxi | 瑶曦的个人主页">
     <meta property="og:description" content="瑶曦 Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式，专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索。">
@@ -35,7 +51,7 @@
     <link rel="preload" href="/avatar.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=8-theme-control">
     
     <!-- 配置主人专属的 Umami 流量统计 -->
     <script defer src="https://umami.yaoxi.cloud/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
@@ -109,6 +125,10 @@
                     <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="en" aria-pressed="false">EN</button>
                 </div>
+                <button class="theme-toggle" id="themeToggle" type="button" data-theme-mode="auto" aria-label="主题跟随时间，点击切换到浅色模式" title="主题跟随时间，点击切换到浅色模式">
+                    <i class="ri-contrast-2-line" aria-hidden="true"></i>
+                </button>
+                <span class="sr-only" id="themeStatus" aria-live="polite"></span>
                 <button class="nav-toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
                     <i class="ri-menu-line"></i>
                 </button>
@@ -552,6 +572,6 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
-    <script src="main.js"></script>
+    <script src="main.js?v=8-theme-control"></script>
 </body>
 </html>

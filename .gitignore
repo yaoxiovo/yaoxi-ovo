@@ -1,4 +1,6 @@
-# Python bytecode and caches
-__pycache__/
-*.py[cod]
-.wrangler/
+node_modules/
+assets/fonts/*-latin.woff2
+assets/fonts/fonts.css
+assets/fonts/remixicon.css
+assets/fonts/remixicon.woff2
+*.log

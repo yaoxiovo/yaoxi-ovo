@@ -47,11 +47,12 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;600;700&display=optional" rel="stylesheet">
     <link rel="preload" href="/avatar.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="/carousel_bg_1.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=8-theme-control">
+    <link rel="stylesheet" href="style.css?v=9-perf-refactor">
     
     <!-- 配置主人专属的 Umami 流量统计 -->
     <script defer src="https://umami.yaoxi.cloud/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
@@ -140,7 +141,7 @@
     <section class="hero-carousel" id="intro" aria-label="瑶曦主页精选内容">
         <div class="carousel-container">
             <!-- Slide 1 -->
-            <div class="carousel-slide active" aria-hidden="false" style="background-image: url('/carousel_bg_1.png');">
+            <div class="carousel-slide active" aria-hidden="false" style="background-image: url('/carousel_bg_1.webp');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">瑶曦启动2026前端探索计划</h1>
@@ -150,7 +151,7 @@
             </div>
             
             <!-- Slide 2 -->
-            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_2.png');">
+            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_1.webp');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">致力于创造美观且实用的网页</h1>
@@ -160,7 +161,7 @@
             </div>
 
             <!-- Slide 3 -->
-            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_3.png');">
+            <div class="carousel-slide" aria-hidden="true" style="background-image: url('/carousel_bg_1.webp');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">科技向善，探索开源的无限可能</h1>
@@ -228,7 +229,7 @@
                 <!-- 卡片 2: 项目 -->
                 <article class="news-card card" id="projects" style="--delay: 2">
                     <div class="card-image-box">
-                        <img src="/project_blog.jpg" alt="瑶曦博客系统" class="card-avatar-img">
+                        <img src="/project_blog.webp" alt="瑶曦博客系统" class="card-avatar-img">
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">个人项目 / 2026.07.04</span>
@@ -247,7 +248,7 @@
                 <!-- 卡片 3: 技能 -->
                 <article class="news-card card" id="skills" style="--delay: 3">
                     <div class="card-image-box">
-                        <img src="/tech_skills.jpg" alt="前端开发核心技能" class="card-avatar-img">
+                        <img src="/tech_skills.webp" alt="前端开发核心技能" class="card-avatar-img">
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">技术积累 / 2026.07.04</span>
@@ -272,7 +273,7 @@
                 <!-- 卡片 4: 新增 (工程化) -->
                 <article class="news-card card" style="--delay: 4">
                     <div class="card-image-box">
-                        <img src="/tech_engineering.jpg" alt="自动化部署与工程化" class="card-avatar-img">
+                        <img src="/tech_engineering.webp" alt="自动化部署与工程化" class="card-avatar-img">
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">工程化研究 / 2026.07.04</span>
@@ -285,7 +286,7 @@
                 <!-- 卡片 5: 新增 (设计体验) -->
                 <article class="news-card card" style="--delay: 5">
                     <div class="card-image-box">
-                        <img src="/tech_design.jpg" alt="交互交互与界面设计" class="card-avatar-img">
+                        <img src="/tech_design.webp" alt="交互交互与界面设计" class="card-avatar-img">
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">设计美学 / 2026.07.04</span>
@@ -298,7 +299,7 @@
                 <!-- 卡片 6: 联系 -->
                 <article class="news-card card" id="contact-section" style="--delay: 6">
                     <div class="card-image-box">
-                        <img src="/tech_skills.jpg" alt="与我沟通交流" class="card-avatar-img" style="filter: hue-rotate(180deg) brightness(0.95);">
+                        <img src="/tech_skills.webp" alt="与我沟通交流" class="card-avatar-img" style="filter: hue-rotate(180deg) brightness(0.95);">
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">沟通交流 / 2026.07.04</span>
@@ -572,6 +573,6 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
-    <script src="main.js?v=8-theme-control"></script>
+    <script src="main.js?v=9-perf-refactor"></script>
 </body>
 </html>

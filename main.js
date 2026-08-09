@@ -514,13 +514,22 @@
         const navMenu = document.getElementById("navMenu");
         
         if (nav) {
-            window.addEventListener("scroll", () => {
+            let ticking = false;
+            const updateNavState = () => {
+                ticking = false;
                 if (window.scrollY > 50) {
                     nav.classList.add("scrolled");
                 } else {
                     nav.classList.remove("scrolled");
                 }
-            });
+            };
+            // rAF 节流 + passive：避免每帧触发 classList 操作导致滚动掉帧
+            window.addEventListener("scroll", () => {
+                if (!ticking) {
+                    ticking = true;
+                    window.requestAnimationFrame(updateNavState);
+                }
+            }, { passive: true });
         }
 
         if (navToggle && navMenu) {
@@ -636,6 +645,40 @@
                     startAutoPlay();
                 }
             });
+
+            // 页面切到后台时暂停轮播，切回时恢复：避免后台无意义动画
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    stopAutoPlay();
+                } else {
+                    startAutoPlay();
+                }
+            });
+
+            // 移动端触摸横向滑动切换
+            let touchStartX = 0;
+            let touchStartY = 0;
+            const touchThreshold = 48;
+            carousel.addEventListener("touchstart", (event) => {
+                const touch = event.touches[0];
+                if (!touch) return;
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+            }, { passive: true });
+            carousel.addEventListener("touchend", (event) => {
+                const touch = event.changedTouches[0];
+                if (!touch) return;
+                const deltaX = touch.clientX - touchStartX;
+                const deltaY = touch.clientY - touchStartY;
+                if (Math.abs(deltaX) > touchThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX < 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                    startAutoPlay();
+                }
+            }, { passive: true });
         }
 
         startAutoPlay();
@@ -871,9 +914,7 @@
             });
         }
 
-        // 双保险兜底：1.5秒后无论 Observer 触发与否，全部强行把进度条拉满，确保动态必定正常显示
-        const fallbackTimeout = setTimeout(fillDirectly, 1500);
-
+        // 仅在 IntersectionObserver 不可用时兜底；可用时完全交给 Observer，避免 1.5s 强拉导致的进度条闪跳
         if ("IntersectionObserver" in window) {
             const skillObserver = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {

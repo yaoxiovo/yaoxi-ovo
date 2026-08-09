@@ -1,12 +1,12 @@
-const CACHE_NAME = "yaoxi-home-v8-theme-control";
+const CACHE_NAME = "yaoxi-home-v9-perf-refactor";
 const SHELL_CACHE = [
   "/",
   "/index.html",
-  "/style.css?v=8-theme-control",
-  "/main.js?v=8-theme-control",
+  "/style.css?v=9-perf-refactor",
+  "/main.js?v=9-perf-refactor",
   "/avatar.webp",
+  "/carousel_bg_1.webp",
   "/favicon.jpg",
-  "/mobile-bg.webp",
   "/site.webmanifest",
   "/robots.txt",
   "/sitemap.xml"

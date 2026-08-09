@@ -124,12 +124,7 @@ body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display",
     "SF Pro Text", "Segoe UI", "Noto Sans SC", sans-serif;
   color: var(--text-main);
-  background:
-    radial-gradient(circle at 8% 12%, rgba(101, 215, 255, 0.14), transparent 28rem),
-    radial-gradient(circle at 92% 22%, rgba(255, 155, 210, 0.13), transparent 30rem),
-    radial-gradient(circle at 48% 74%, rgba(138, 163, 255, 0.12), transparent 36rem),
-    linear-gradient(155deg, var(--page) 0%, var(--page-soft) 48%, var(--page) 100%);
-  background-attachment: fixed;
+  background-color: var(--page);
   font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -137,29 +132,37 @@ body {
   transition: color 0.45s ease, background-color 0.45s ease;
 }
 
-body::before,
+/* 固定渐变背景层：替代 background-attachment: fixed，避免移动端滚动全页重绘闪频 */
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(101, 215, 255, 0.14), transparent 28rem),
+    radial-gradient(circle at 92% 22%, rgba(255, 155, 210, 0.13), transparent 30rem),
+    radial-gradient(circle at 48% 74%, rgba(138, 163, 255, 0.12), transparent 36rem),
+    linear-gradient(155deg, var(--page) 0%, var(--page-soft) 48%, var(--page) 100%);
+  transition: opacity 0.4s ease;
+}
+
+/* 主题切换时背景渐变层淡出：渐变无法插值，用透明度交叉淡化避免瞬间跳变闪频 */
+html.theme-changing body::before {
+  opacity: 0;
+}
+
 body::after {
   content: "";
   position: fixed;
   z-index: -1;
-  pointer-events: none;
-  border-radius: 50%;
-  filter: blur(8px);
-}
-
-body::before {
-  top: 34vh;
-  left: -12rem;
-  width: 34rem;
-  height: 34rem;
-  background: radial-gradient(circle, rgba(92, 108, 255, 0.2), transparent 68%);
-}
-
-body::after {
   right: -15rem;
   bottom: -10rem;
   width: 38rem;
   height: 38rem;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(8px);
   background: radial-gradient(circle, rgba(227, 108, 220, 0.16), transparent 70%);
 }
 
@@ -286,17 +289,13 @@ article {
   backdrop-filter: var(--blur-glass);
   -webkit-backdrop-filter: var(--blur-glass);
   transition:
-    width 0.45s var(--ease-spring),
-    height 0.45s var(--ease-spring),
-    top 0.45s var(--ease-spring),
+    transform 0.45s var(--ease-spring),
     background 0.35s ease,
     box-shadow 0.35s ease;
 }
 
 .tencent-nav.scrolled {
-  top: 10px;
-  width: min(calc(100% - 48px), 1240px);
-  height: 60px;
+  transform: translateX(-50%) translateY(-6px);
   background:
     linear-gradient(145deg, var(--glass-sheen), transparent 42%),
     var(--glass-strong);
@@ -628,10 +627,9 @@ html.theme-changing .modal-box {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  transform: scale(1.035);
-  transition:
-    opacity 1s var(--ease-smooth),
-    transform 1.5s var(--ease-spring);
+  transform: scale(1);
+  transition: opacity 0.55s var(--ease-smooth);
+  will-change: opacity;
 }
 
 .carousel-slide::before {
@@ -649,7 +647,17 @@ html.theme-changing .modal-box {
   z-index: 2;
   opacity: 1;
   pointer-events: auto;
-  transform: scale(1);
+  animation: slide-kenburns 7s var(--ease-smooth) forwards;
+}
+
+/* 缓慢 Ken Burns 缩放：只作用于进入的 slide（动画驱动，不参与切换过渡，避免双层合成卡顿） */
+@keyframes slide-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
 }
 
 .slide-content {
@@ -676,8 +684,8 @@ html.theme-changing .modal-box {
     0 28px 70px rgba(1, 6, 22, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(26px) saturate(170%);
-  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
 }
 
 .slide-text::before {
@@ -765,8 +773,8 @@ html.theme-changing .modal-box {
   color: #fff;
   background: rgba(15, 24, 44, 0.38);
   box-shadow: 0 12px 34px rgba(2, 6, 20, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
   cursor: pointer;
   transition:
     transform 0.3s var(--ease-spring),
@@ -829,8 +837,8 @@ html.theme-changing .modal-box {
   border-radius: 16px;
   background: rgba(15, 24, 44, 0.34);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
 }
 
 .indicator-dot {
@@ -882,8 +890,8 @@ html.theme-changing .modal-box {
     0 22px 54px rgba(1, 6, 22, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(24px) saturate(175%);
-  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
   transition:
     transform 0.4s var(--ease-spring),
     border-color 0.3s ease,
@@ -1215,8 +1223,8 @@ html[lang="en"] .nav-item {
   border-radius: 999px;
   color: #fff;
   background: rgba(7, 13, 27, 0.42);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
   font-size: 10px;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -2100,8 +2108,8 @@ html[lang="en"] .nav-item {
   opacity: 0;
   pointer-events: none;
   background: rgba(3, 8, 20, 0.34);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
   transition: opacity 0.3s ease;
 }
 
@@ -2247,8 +2255,8 @@ html[lang="en"] .nav-item {
   color: #fff;
   background: rgba(25, 158, 85, 0.8);
   box-shadow: 0 10px 28px rgba(0, 30, 15, 0.24);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--blur-soft);
+  -webkit-backdrop-filter: var(--blur-soft);
   font-size: 10px;
   font-weight: 650;
   transform: translate(-50%, -18px);
@@ -2735,6 +2743,25 @@ html[lang="en"] .nav-item {
 
   .stats-box {
     min-height: 112px;
+  }
+}
+
+/* --- 移动端性能降级：保留液态玻璃质感，但大幅降低 backdrop-filter 采样压力 --- */
+@media (max-width: 767px) {
+  :root {
+    --blur-soft: blur(12px) saturate(140%);
+    --blur-glass: blur(14px) saturate(150%);
+    --blur-strong: blur(18px) saturate(160%);
+  }
+
+  /* 首屏入场动画在移动端关闭，优先保证加载速度 */
+  .news-card {
+    animation: none;
+  }
+
+  /* 技能条无限闪光在移动端关闭，减少持续重绘 */
+  .skill-fill::after {
+    animation: none;
   }
 }
 

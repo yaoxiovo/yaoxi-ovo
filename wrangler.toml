@@ -1,6 +1,7 @@
-name = "yaoxi-ovo"  # 改成你想要的项目名
+name = "yaoxi-ovo"
+main = "src/worker.js"
 compatibility_date = "2026-01-09"
 
 [assets]
-directory = "."   # 修改成你的静态文件夹路径
-# 如果是根目录，就写 directory = "."
+directory = "./dist"
+binding = "ASSETS"

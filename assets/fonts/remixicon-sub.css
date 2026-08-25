@@ -1,0 +1,34 @@
+/* --- Remix Icon subset (16 icons) --- */
+@font-face {
+  font-family: "remixicon";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/remixicon-sub.woff2") format("woff2");
+}
+[class^="ri-"], [class*=" ri-"] {
+  font-family: "remixicon" !important;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ri-arrow-right-line:before { content: "\ea6c"; }
+.ri-arrow-right-up-line:before { content: "\ea70"; }
+.ri-book-open-line:before { content: "\eadb"; }
+.ri-braces-line:before { content: "\eae9"; }
+.ri-chat-smile-3-line:before { content: "\eb71"; }
+.ri-cloud-windy-line:before { content: "\eba1"; }
+.ri-contrast-2-line:before { content: "\ebd4"; }
+.ri-device-line:before { content: "\ec2e"; }
+.ri-error-warning-line:before { content: "\eca1"; }
+.ri-github-fill:before { content: "\edca"; }
+.ri-mail-send-fill:before { content: "\eefb"; }
+.ri-menu-line:before { content: "\ef3e"; }
+.ri-moon-clear-line:before { content: "\ef6f"; }
+.ri-music-2-line:before { content: "\ef83"; }
+.ri-qq-fill:before { content: "\f03a"; }
+.ri-user-heart-line:before { content: "\f263"; }

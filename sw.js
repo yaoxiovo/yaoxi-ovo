@@ -1,12 +1,23 @@
-const CACHE_NAME = "yaoxi-home-v2";
+const CACHE_NAME = "yaoxi-home-v10-perf-max";
 const SHELL_CACHE = [
   "/",
   "/index.html",
-  "/style.css",
-  "/main.js",
-  "/avatar.jpg",
+  "/style.css?v=10-perf-max",
+  "/main.min.js?v=10-perf-max",
+  "/assets/img/avatar.avif",
+  "/assets/img/carousel_bg_1.avif",
+  "/assets/img/project_blog.avif",
+  "/assets/img/tech_skills.avif",
+  "/assets/img/tech_engineering.avif",
+  "/assets/img/tech_design.avif",
+  "/assets/fonts/Inter-400-sub.woff2",
+  "/assets/fonts/Inter-600-sub.woff2",
+  "/assets/fonts/Inter-700-sub.woff2",
+  "/assets/fonts/Outfit-500-sub.woff2",
+  "/assets/fonts/Outfit-600-sub.woff2",
+  "/assets/fonts/Outfit-700-sub.woff2",
+  "/assets/fonts/remixicon-sub.woff2",
   "/favicon.jpg",
-  "/mobile-bg.jpg",
   "/site.webmanifest",
   "/robots.txt",
   "/sitemap.xml"
@@ -41,7 +52,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  const isStaticAsset = /\.(?:css|js|json|png|jpg|jpeg|webp|svg|ico|txt|xml)$/i.test(url.pathname);
+  const isStaticAsset = /\.(?:css|js|json|png|jpg|jpeg|webp|avif|woff2|svg|ico|txt|xml)$/i.test(url.pathname);
   if (!isStaticAsset) return;
 
   event.respondWith(staleWhileRevalidate(request));

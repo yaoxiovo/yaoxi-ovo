@@ -1,0 +1,27 @@
+{
+  "name": "yaoxi-homepage",
+  "version": "10.0.0",
+  "description": "Yaoxi homepage — extreme performance build",
+  "main": "main.js",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yaoxiovo/yaoxi-ovo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yaoxiovo/yaoxi-ovo/issues"
+  },
+  "homepage": "https://github.com/yaoxiovo/yaoxi-ovo#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

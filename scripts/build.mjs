@@ -101,6 +101,11 @@ for (const f of imgFiles) {
   const src = join(root, "assets/img", f);
   if (existsSync(src)) copyFileSync(src, join(dist, "assets/img", f));
 }
+// 娜娜莉风格素材（壁纸 + 立绘）
+const nanaDir = join(root, "assets/img/nana");
+if (existsSync(nanaDir)) {
+  cpSync(nanaDir, join(dist, "assets/img/nana"), { recursive: true });
+}
 const fontFiles = ["Inter-400-sub.woff2", "Inter-600-sub.woff2", "Inter-700-sub.woff2", "Outfit-500-sub.woff2", "Outfit-600-sub.woff2", "Outfit-700-sub.woff2", "remixicon-sub.woff2"];
 mkdirSync(join(dist, "assets/fonts"), { recursive: true });
 for (const f of fontFiles) {

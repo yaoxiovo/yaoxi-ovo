@@ -1,9 +1,13 @@
-const CACHE_NAME = "yaoxi-home-v10-perf-max";
+const CACHE_NAME = "yaoxi-home-v11-nana";
 const SHELL_CACHE = [
   "/",
   "/index.html",
   "/style.css?v=10-perf-max",
   "/main.min.js?v=10-perf-max",
+  "/assets/img/nana/nana_desktop.avif",
+  "/assets/img/nana/nana_desktop.webp",
+  "/assets/img/nana/nana_mobile.avif",
+  "/assets/img/nana/nana_character.webp",
   "/assets/img/avatar.avif",
   "/assets/img/carousel_bg_1.avif",
   "/assets/img/project_blog.avif",

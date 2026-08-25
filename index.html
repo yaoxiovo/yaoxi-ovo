@@ -8,7 +8,7 @@
     <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, 3D视差, PWA">
     <meta name="author" content="Yaoxi">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="theme-color" content="#07101F">
+    <meta name="theme-color" content="#140721">
     <meta name="color-scheme" content="dark light">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no,email=no,address=no">
@@ -44,8 +44,9 @@
     <link rel="canonical" href="https://yaoxi.wiki/">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
-    <link rel="preload" href="/assets/img/avatar.avif" as="image" type="image/avif" fetchpriority="high">
-    <link rel="preload" href="/assets/img/carousel_bg_1.avif" as="image" type="image/avif" fetchpriority="high">
+    <link rel="preload" href="/assets/img/nana/nana_desktop.avif" as="image" type="image/avif" fetchpriority="high">
+    <link rel="preload" href="/assets/img/nana/nana_character.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="/assets/img/nana/nana_mobile.avif" as="image" type="image/avif" media="(max-width: 840px)">
     <link rel="preload" href="/assets/fonts/Inter-400-sub.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
     <link rel="stylesheet" href="style.css?v=10-perf-max">
@@ -201,6 +202,29 @@
     <!-- 主体内容 -->
     <main class="tencent-main" id="main-content">
         
+        <!-- 0. 角色展示：娜娜莉风格看板娘 -->
+        <section class="character-showcase" id="character" aria-label="看板娘角色展示">
+            <div class="character-panel">
+                <div class="character-portrait" aria-hidden="true">
+                    <picture>
+                        <source srcset="/assets/img/nana/nana_character.webp" type="image/webp">
+                        <img src="/assets/img/nana/nana_character.webp" alt="看板娘娜娜莉立绘" class="character-img" loading="lazy">
+                    </picture>
+                </div>
+                <div class="character-info">
+                    <span class="character-kicker">看板娘 · 站点之魂</span>
+                    <h2 class="character-name">娜娜莉 · 柯林斯</h2>
+                    <p class="character-tagline">「天才一代目 · 倒转地球」— 伊波恩古董店一号台柱</p>
+                    <p class="character-desc">红粉渐变长发、黑色虎耳与圆框眼镜，穿梭于街头巷尾的元气看板娘。电光缠身、反重力奔跑，把街头热血写进每一次像素跃动里喵。</p>
+                    <ul class="character-traits">
+                        <li><span class="trait-mark">⚡</span> 电光蓝紫 · 雷蚀特效</li>
+                        <li><span class="trait-mark">♥</span> 粉红渐变 · 街头虎娘</li>
+                        <li><span class="trait-mark">〰</span> 反重力 · 自由奔跑</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- 1. 最新动态模块 (升级为 6 张卡片) -->
         <section class="news-section">
             <div class="section-header">

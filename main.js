@@ -172,7 +172,16 @@
         "自动化部署与工程化": { "zh-TW": "自動化部署與工程化", "en": "Automation and engineering" },
         "交互交互与界面设计": { "zh-TW": "互動與介面設計", "en": "Interaction and interface design" },
         "与我沟通交流": { "zh-TW": "與我聯絡交流", "en": "Get in touch" },
-        "关闭偏好设置": { "zh-TW": "關閉偏好設定", "en": "Close preferences" }
+        "关闭偏好设置": { "zh-TW": "關閉偏好設定", "en": "Close preferences" },
+        "看板娘 · 站点之魂": { "zh-TW": "看板娘 · 站點之魂", "en": "Mascot · Soul of the Site" },
+        "娜娜莉 · 柯林斯": { "zh-TW": "娜娜莉 · 柯林斯", "en": "Nanally Collins" },
+        "「天才一代目 · 倒转地球」— 伊波恩古董店一号台柱": { "zh-TW": "「天才一代目 · 倒轉地球」— 伊波恩古董店一號台柱", "en": "\u201cGenius Founding Head \u00b7 Reversing the Globe\u201d \u2014 Top Star of Ebon Antiques" },
+        "红粉渐变长发、黑色虎耳与圆框眼镜，穿梭于街头巷尾的元气看板娘。电光缠身、反重力奔跑，把街头热血写进每一次像素跃动里喵。": { "zh-TW": "紅粉漸變長髮、黑色虎耳與圓框眼鏡，穿梭於街頭巷尾的元氣看板娘。電光纏身、反重力奔跑，把街頭熱血寫進每一次像素躍動裡喵。", "en": "With pink-to-red gradient hair, black tiger ears and round glasses, she's the street-savvy mascot of this site. Crackling with neon and defying gravity, she pours street energy into every pixel." },
+        "电光蓝紫 · 雷蚀特效": { "zh-TW": "電光藍紫 · 雷蝕特效", "en": "Electric blue-violet \u00b7 Thunder Aura" },
+        "粉红渐变 · 街头虎娘": { "zh-TW": "粉紅漸變 · 街頭虎娘", "en": "Pink gradient \u00b7 Street Tiger Girl" },
+        "反重力 · 自由奔跑": { "zh-TW": "反重力 · 自由奔跑", "en": "Anti-gravity \u00b7 Free Running" },
+        "看板娘娜娜莉立绘": { "zh-TW": "看板娘娜娜莉立繪", "en": "Nanally mascot illustration" },
+        "看板娘角色展示": { "zh-TW": "看板娘角色展示", "en": "Mascot showcase" }
     };
 
     const PAGE_META = {
@@ -389,7 +398,7 @@
 
         const themeColor = document.querySelector('meta[name="theme-color"]');
         if (themeColor) {
-            themeColor.setAttribute("content", isLight ? "#EDF3FC" : "#07101F");
+            themeColor.setAttribute("content", isLight ? "#FDF1F8" : "#140721");
         }
 
         updateThemeControl(announce);

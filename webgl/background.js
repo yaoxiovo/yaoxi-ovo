@@ -52,7 +52,7 @@ uniform float uDPR;
 uniform float uWeather;
 uniform float uRain;
 uniform float uTheme;
-uniform float uMarch;
+uniform int   uSteps;
 uniform int   uCardCount;
 uniform vec4  uCards[8];
 uniform vec2  uCursor;
@@ -112,22 +112,24 @@ vec3 skyBase(vec2 px) {
     sky += vec3(0.8, 0.85, 1.0) * stars * 0.5;
     return sky;
 }
-vec3 atmo(vec2 px) {
-    vec3 c = skyBase(px);
+vec3 godRays(vec2 px) {
     float sunUp = smoothstep(-0.05, 0.25, uSunElev);
     float clearK = (1.0 - uWeather);
-    vec2 dir = (uSunPos - px) / max(uMarch, 1.0);
-    float t = 0.0;
     vec3 beam = vec3(0.0);
+    vec2 dir = (uSunPos - px) / max(float(uSteps), 1.0);
+    float t = 0.0;
     float scale = uResolution.y * 0.0016;
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < uSteps; i++) {
         vec2 sp = px + dir * t;
         float dens = fbm2(sp * scale + vec2(0.0, uTime * 0.02));
         float occ = smoothstep(0.42, 0.64, dens);
         beam += uSunColor * (1.0 - occ) * (1.0 - t * 0.012) * 0.05;
         t += 1.0;
     }
-    c += beam * sunUp * clearK * 0.55;
+    return beam * sunUp * clearK * 0.55;
+}
+vec3 dust(vec2 px, float sunUp, float clearK) {
+    vec3 c = vec3(0.0);
     vec2 q = px * 0.0022 * uDPR + vec2(uTime * 0.030, uTime * 0.015);
     float n = fbm(q);
     float spark = pow(max(n - 0.52, 0.0) * 6.0, 2.2);
@@ -209,16 +211,18 @@ vec3 cardSplashes(vec2 px, vec4 r, float t, float rain) {
 }
 void main() {
     vec2 px = gl_FragCoord.xy;
+    float sunUp = smoothstep(-0.05, 0.25, uSunElev);
+    float clearK = (1.0 - uWeather);
     vec2 basePx = px + vec2(0.0, uScrollY * 0.16);
     vec2 dp = basePx / uResolution.y;
     vec2 rip = ripples(dp, uTime);
     vec2 refr = rip * (14.0 * uRain);
-    vec3 atmoRefr = atmo(px + refr);
-    vec3 bg = atmo(basePx);
+    vec3 beam = godRays(basePx);
+    vec3 bg = skyBase(basePx) + beam + dust(basePx, sunUp, clearK);
+    vec3 atmoRefr = skyBase(px + refr) + beam + dust(px + refr, sunUp, clearK);
     float streak = rainStreaks(dp, uTime);
     vec3 rainBg = atmoRefr * (0.86 + 0.20 * streak) + uAmbient * 0.10;
     bg = mix(bg, rainBg, uWeather);
-    float sunUp = smoothstep(-0.05, 0.25, uSunElev);
     vec3 tint = mix(vec3(0.55, 0.65, 0.82), vec3(0.93, 0.96, 1.0), uTheme);
     float glassA = mix(0.88, 0.72, uTheme);
     vec3 V = vec3(0.0, 0.0, 1.0);
@@ -226,40 +230,40 @@ void main() {
     float NoV = max(dot(N, V), 0.0);
     float roug = 0.34;
     float a2 = roug * roug * roug * roug;
+    float dispK = mix(0.5, 1.8, uRain) * (0.3 + 0.7 * sunUp);
+    vec3 Hs = normalize(V + uSunDir);
+    float NoH = max(dot(N, Hs), 0.0);
+    float NoL = max(dot(N, uSunDir), 0.0);
+    float Ds = ggxD(NoH, a2);
+    float Fs = schlickF(NoV, 0.04);
+    vec3 sunSpec = uSunColor * Ds * Fs * NoL * sunUp * 0.28;
+    vec3 Lc = normalize(vec3(uCursor - px, -uResolution.y * 0.55));
+    vec3 Hc = normalize(V + Lc);
+    float NoHc = max(dot(N, Hc), 0.0);
+    float NoLc = max(dot(N, Lc), 0.0);
+    float Dc = ggxD(NoHc, a2);
+    float Fc = schlickF(NoV, 0.04);
+    vec3 curSpec = vec3(1.0, 0.98, 0.94) * Dc * Fc * NoLc * uCursorL * 0.6;
+    float inter = 0.5 + 0.5 * sin(NoH * 40.0 + (1.0 - roug) * 14.0);
+    vec3 irid = mix(vec3(0.25, 0.6, 1.0), vec3(1.0, 0.35, 0.55), inter);
+    vec3 spec = (sunSpec + curSpec) * (0.55 + 0.45 * irid);
+    vec3 chroma = vec3(0.0);
+    chroma.r = skyBase(px + refr + vec2(3.0, 0.0)).r;
+    chroma.g = skyBase(px + refr + vec2(0.0, 0.0)).g;
+    chroma.b = skyBase(px + refr + vec2(-3.0, 0.0)).b;
+    vec3 dispersion = (chroma - atmoRefr) * dispK;
     vec3 glassAcc = vec3(0.0);
     float cov = 0.0;
-    for (int i = 0; i < 8; i++) {
-        float act = step(float(i) + 0.5, float(uCardCount) - 0.5);
+    for (int i = 0; i < uCardCount; i++) {
         vec4 r = uCards[i];
-        float m = rectMask(px, r) * act;
+        float m = rectMask(px, r);
         float edge = edgeDist(px, r);
         float inEdge = (1.0 - exp(-edge * 0.06)) * step(0.0, edge);
-        vec3 col = atmoRefr * tint;
-        vec3 chroma = vec3(0.0);
-        chroma.r = skyBase(px + refr + vec2(3.0, 0.0)).r;
-        chroma.g = skyBase(px + refr + vec2(0.0, 0.0)).g;
-        chroma.b = skyBase(px + refr + vec2(-3.0, 0.0)).b;
-        float dispK = mix(0.5, 1.8, uRain) * (0.3 + 0.7 * sunUp);
-        col += (chroma - atmoRefr) * (inEdge * dispK);
-        vec3 Ls = uSunDir;
-        vec3 Hs = normalize(V + Ls);
-        float NoH = max(dot(N, Hs), 0.0);
-        float NoL = max(dot(N, Ls), 0.0);
-        float Ds = ggxD(NoH, a2);
-        float Fs = schlickF(NoV, 0.04);
-        vec3 sunSpec = uSunColor * Ds * Fs * NoL * sunUp * 0.28;
-        vec3 Lc = normalize(vec3(uCursor - px, -uResolution.y * 0.55));
-        vec3 Hc = normalize(V + Lc);
-        float NoHc = max(dot(N, Hc), 0.0);
-        float NoLc = max(dot(N, Lc), 0.0);
-        float Dc = ggxD(NoHc, a2);
-        float Fc = schlickF(NoV, 0.04);
-        vec3 curSpec = vec3(1.0, 0.98, 0.94) * Dc * Fc * NoLc * uCursorL * 0.6;
-        float inter = 0.5 + 0.5 * sin(NoH * 40.0 + (1.0 - roug) * 14.0);
-        vec3 irid = mix(vec3(0.25, 0.6, 1.0), vec3(1.0, 0.35, 0.55), inter);
-        col += (sunSpec + curSpec) * (0.55 + 0.45 * irid);
-        col += uSunColor * Fs * inEdge * sunUp * 0.9;
-        col += cardSplashes(px, r, uTime, uRain);
+        vec3 col = atmoRefr * tint
+                 + dispersion * inEdge
+                 + spec
+                 + uSunColor * Fs * inEdge * sunUp * 0.9
+                 + cardSplashes(px, r, uTime, uRain);
         glassAcc += col * m;
         cov += m;
     }
@@ -492,16 +496,22 @@ void main() {
                 this.setState("ready");
                 this.start();
             }).catch((err) => {
+                const detail = String((err && err.message) || err).slice(0, 500);
                 console.warn("[RTX] 着色器编译失败，回退静态背景：", err);
                 this.canvas.remove();
-                this.fail("shader-fail", "图形引擎着色器编译失败，已回退到静态背景。");
+                this.fail("shader-fail", "图形引擎着色器编译失败，已回退到静态背景。", detail);
             });
         }
 
-        fail(reason, message) {
+        fail(reason, message, detail) {
             this.setState("dead");
             this.failReason = reason;
-            window.__rtxFail = { stage: reason, message, ua: navigator.userAgent };
+            window.__rtxFail = {
+                stage: reason,
+                message,
+                detail: detail || "",
+                ua: navigator.userAgent
+            };
             document.documentElement.classList.add("rtx-fallback");
             const bar = document.createElement("div");
             bar.id = "rtx-notice";
@@ -580,7 +590,7 @@ void main() {
                 "uResolution", "uSunPos", "uSunDir", "uSunColor",
                 "uSkyZenith", "uSkyHorizon", "uAmbient", "uGround",
                 "uSunElev", "uTime", "uScrollY", "uDPR",
-                "uWeather", "uRain", "uTheme", "uMarch",
+                "uWeather", "uRain", "uTheme", "uSteps",
                 "uCardCount", "uCards", "uCursor", "uCursorL"
             ];
             const loc = {};
@@ -741,7 +751,7 @@ void main() {
             gl.uniform1f(u.uWeather, weather);
             gl.uniform1f(u.uRain, rain);
             gl.uniform1f(u.uTheme, theme);
-            gl.uniform1f(u.uMarch, this.marchSteps);
+            gl.uniform1i(u.uSteps, Math.max(8, Math.min(128, this.marchSteps | 0)));
             gl.uniform1i(u.uCardCount, this.cardCount);
             gl.uniform4fv(u.uCards, this.cardData);
             gl.uniform2f(u.uCursor, cx, cy);

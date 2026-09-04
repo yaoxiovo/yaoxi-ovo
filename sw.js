@@ -1,4 +1,4 @@
-const CACHE_NAME = "yaoxi-home-v12-scene-console";
+const CACHE_NAME = "yaoxi-home-v13-tier-adaptive";
 const SHELL_CACHE = [
   "/",
   "/index.html",

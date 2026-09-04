@@ -293,6 +293,8 @@ uniform vec3  uGround;
 uniform float uSunElev;
 uniform float uScrollY;
 uniform float uDPR;
+uniform float uWeather;
+uniform float uBeamK;
 uniform vec2  uCursor;
 uniform float uCursorL;
 in vec2 vUv;
@@ -318,14 +320,18 @@ void main() {
     vec3 sky = mix(uSkyHorizon, uSkyZenith, pow(clamp(uv.y, 0.0, 1.0), 0.45));
     float sunUp = smoothstep(-0.15, 0.22, uSunElev);
     float sd = length(uSunPos - px);
-    sky += uSunColor * (exp(-sd * sd * 0.9) * 1.5 + exp(-sd * sd * 0.0006) * 0.12 + exp(-sd * sd * 0.00018) * 0.30) * sunUp;
+    sky += uSunColor * (exp(-sd * sd * 0.9) * 1.5 + exp(-sd * sd * 0.0006) * 0.12 + exp(-sd * sd * 0.00018) * 0.30) * sunUp * clamp(uBeamK, 0.0, 2.0) * (1.0 - clamp(uWeather, 0.0, 1.0) * 0.8);
     float g = smoothstep(0.55, 0.62, uv.y);
     sky = mix(sky, uGround, g * 0.88);
     float stars = pow(max(vnoise(px * 0.02 * uDPR) - 0.966, 0.0) * 30.0, 2.0);
-    stars *= (1.0 - sunUp) * smoothstep(0.30, 0.55, uv.y);
+    stars *= (1.0 - sunUp) * smoothstep(0.30, 0.55, uv.y) * (1.0 - clamp(uWeather, 0.0, 1.0));
     sky += vec3(0.8, 0.85, 1.0) * stars * 0.5;
     float cd = length(uCursor - gl_FragCoord.xy);
     sky += vec3(1.0, 0.98, 0.94) * exp(-cd * cd * 0.00002) * uCursorL * 0.30;
+    /* 调节台反馈（LITE 简化档）：雨天压暗 + 去饱和 */
+    float wet = clamp(uWeather, 0.0, 1.0);
+    sky *= 1.0 - wet * 0.45;
+    sky = mix(sky, vec3(dot(sky, vec3(0.299, 0.587, 0.114))), wet * 0.35);
     vec2 qv = uv - 0.5;
     sky *= 1.0 - dot(qv, qv) * 0.35;
     sky += (hash21(gl_FragCoord.xy) - 0.5) * (1.5 / 255.0);
@@ -343,14 +349,18 @@ uniform vec3  uSkyHorizon;
 uniform vec2  uSunPos;
 uniform vec3  uSunColor;
 uniform float uSunElev;
+uniform float uWeather;
+uniform float uBeamK;
 in vec2 vUv;
 out vec4 fragColor;
 void main() {
     vec2 uv = gl_FragCoord.xy / uResolution;
+    float wet = clamp(uWeather, 0.0, 1.0);
     vec3 sky = mix(uSkyHorizon, uSkyZenith, pow(clamp(uv.y, 0.0, 1.0), 0.45));
     float sunUp = smoothstep(-0.15, 0.22, uSunElev);
     float sd = length(uSunPos - gl_FragCoord.xy);
-    sky += uSunColor * exp(-sd * sd * 0.0002) * 0.35 * sunUp;
+    sky += uSunColor * exp(-sd * sd * 0.0002) * 0.35 * sunUp * clamp(uBeamK, 0.0, 2.0) * (1.0 - wet * 0.8);
+    sky *= 1.0 - wet * 0.4;
     fragColor = vec4(sky, 1.0);
 }
 `;
@@ -507,6 +517,7 @@ void main() {
             this.state = "idle";
             this.software = false;
             this.shaderTier = null;
+            this.tierErrors = {};
             this.ftEma = 0.016;   // 帧时指数平滑（秒，初值 16ms）
             this.ftAcc = 0;       // 自适应评估累计器
             /* 调节台可覆盖参数（null/默认 = 跟随引擎自动逻辑） */
@@ -633,6 +644,7 @@ void main() {
         }
 
         async compile() {
+            this.tierErrors = {};
             let fullFrag = EMBED_FRAG;
             if (SHADER_PATH) {
                 /* 开发期可选：fetch 覆盖完整档位着色器源码 */
@@ -654,6 +666,8 @@ void main() {
                     return;
                 } catch (err) {
                     lastErr = err;
+                    /* 捕获各档位编译错误 → 调节台公示，远程排障唯一线索 */
+                    this.tierErrors[tier] = String((err && err.message) || err).replace(/\s+/g, " ").slice(0, 160);
                     console.warn("[RTX] 着色器档位 " + tier + " 编译失败:", err && err.message);
                 }
             }
@@ -1020,14 +1034,33 @@ void main() {
             reset: $("ctlReset"),
             stMode: $("stMode"), stFps: $("stFps"), stTier: $("stTier"),
             stMarch: $("stMarch"), stWeather: $("stWeather"),
-            stSun: $("stSun"), stRes: $("stRes")
+            stSun: $("stSun"), stRes: $("stRes"),
+            tierHint: $("tierHint")
         };
 
         /* 动态数值标签多语言（静态文案由 main.js i18n 扫描翻译） */
         const L10N = {
-            "zh-CN": { auto: "自动", follow: "跟随本地", steps: (n) => n + " 步", manual: "手动", run: "运行中", sw: "运行中·软渲", dead: "引擎未运行", az: "方位" },
-            "zh-TW": { auto: "自動", follow: "跟隨本地", steps: (n) => n + " 步", manual: "手動", run: "運行中", sw: "運行中·軟渲", dead: "引擎未運行", az: "方位" },
-            "en": { auto: "Auto", follow: "Local", steps: (n) => n + " steps", manual: "manual", run: "Running", sw: "Running·SW", dead: "Engine offline", az: "az" }
+            "zh-CN": {
+                auto: "自动", follow: "跟随本地", steps: (n) => n + " 步", manual: "手动",
+                run: "运行中", sw: "运行中·软渲", dead: "引擎未运行", az: "方位",
+                tierHint: "当前 {TIER} 档位（GPU 驱动兼容降级）：雨幕粒子、雨滴折射与体积光步数不可用；天气滑杆调节天色明暗，光束强度作用于太阳光晕。",
+                swHint: " 当前为软件渲染，帧率受限。",
+                fullErr: " FULL 档编译失败："
+            },
+            "zh-TW": {
+                auto: "自動", follow: "跟隨本地", steps: (n) => n + " 步", manual: "手動",
+                run: "運行中", sw: "運行中·軟渲", dead: "引擎未運行", az: "方位",
+                tierHint: "目前 {TIER} 檔位（GPU 驅動相容降級）：雨幕粒子、雨滴折射與體積光步數不可用；天氣滑桿調節天色明暗，光束強度作用於太陽光暈。",
+                swHint: " 目前為軟體渲染，幀率受限。",
+                fullErr: " FULL 檔編譯失敗："
+            },
+            "en": {
+                auto: "Auto", follow: "Local", steps: (n) => n + " steps", manual: "manual",
+                run: "Running", sw: "Running·SW", dead: "Engine offline", az: "az",
+                tierHint: "{TIER} tier (driver-compat fallback): rain streaks, rain refraction and ray steps unavailable; the weather slider dims the sky, the beam slider scales the sun glow.",
+                swHint: " Software rendering; FPS is limited.",
+                fullErr: " FULL tier compile failed: "
+            }
         };
         const L = () => L10N[document.documentElement.lang] || L10N["zh-CN"];
 
@@ -1080,6 +1113,24 @@ void main() {
             const alive = !!s.running;
             const t = L();
             panel.classList.toggle("is-dead", !alive);
+
+            /* 档位自适应提示：非 FULL 档自动置灰失效控件（折射/步数），
+               并公示降级原因 + FULL 编译错误（远程排障唯一线索） */
+            const tierLite = alive && s.tier !== "full";
+            panel.classList.toggle("tier-lite", tierLite);
+            const setNa = (input, na) => {
+                if (input) input.closest(".ctl-block").classList.toggle("is-na", na);
+            };
+            setNa(el.ctlMarch, tierLite);
+            setNa(el.ctlRefr, tierLite);
+            let hint = "";
+            if (tierLite) hint += t.tierHint.replace("{TIER}", String(s.tier).toUpperCase());
+            if (alive && s.software) hint += t.swHint;
+            if (tierLite && rtx.tierErrors && rtx.tierErrors.full) hint += t.fullErr + rtx.tierErrors.full;
+            if (el.tierHint) {
+                el.tierHint.hidden = !hint;
+                el.tierHint.textContent = hint;
+            }
 
             const ctrls = [el.ctlWeather, el.ctlWeatherAuto, el.ctlTime, el.ctlTimeAuto,
                 el.ctlMarch, el.ctlMarchAuto, el.ctlBeam, el.ctlRefr, el.reset];

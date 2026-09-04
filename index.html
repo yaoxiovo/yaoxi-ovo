@@ -48,8 +48,8 @@
     <link rel="preload" href="/assets/img/carousel_bg_1.avif" as="image" type="image/avif" fetchpriority="high">
     <link rel="preload" href="/assets/fonts/Inter-400-sub.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
-    <link rel="stylesheet" href="style.css?v=10-perf-max">
-    <link rel="stylesheet" href="webgl/rtx.css?v=10-perf-max">
+    <link rel="stylesheet" href="style.css?v=13-tier-adaptive">
+    <link rel="stylesheet" href="webgl/rtx.css?v=13-tier-adaptive">
     
     <!-- 配置主人专属的 Umami 流量统计 -->
     <script defer src="https://umami.yaoxi.cloud/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
@@ -537,6 +537,8 @@
 
         <section class="scene-section">
             <h4 class="scene-sub">场景控制</h4>
+            <!-- 非 FULL 档位时由 JS 填充降级原因与 FULL 编译错误（远程排障线索） -->
+            <p class="scene-tier-hint" id="tierHint" hidden></p>
 
             <div class="ctl-block">
                 <div class="ctl-row">
@@ -640,7 +642,7 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
-    <script src="main.js?v=10-perf-max"></script>
-    <script src="webgl/background.js?v=10-perf-max"></script>
+    <script src="main.js?v=13-tier-adaptive"></script>
+    <script src="webgl/background.js?v=13-tier-adaptive"></script>
 </body>
 </html>

@@ -416,6 +416,7 @@ void main() {
             this.cursor = { x: -99999, y: -99999, tx: -99999, ty: -99999, l: 0, tl: 0 };
             this.scrollY = 0;
             this.state = "idle";
+            this.software = false;
             this.wfsm = Object.create(WeatherFSM);
             this.theme = 0;
         }
@@ -425,36 +426,13 @@ void main() {
             this.state = s;
         }
 
-        /* ---- 入口：严格嗅探 WebGL2（拒绝软件渲染的“非现代内核”） ---- */
-        detectWebGL2() {
-            if (!window.WebGL2RenderingContext) return false;
-            const c = document.createElement("canvas");
-            try {
-                const gl = c.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
-                return !!gl;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        boot() {
-            if (!this.detectWebGL2()) {
-                this.fail("您的设备图形内核不支持 WebGL 2.0（或处于软件渲染模式）。为获得完整的物理光追与全天候光照体验，请更换现代设备或浏览器后重试。");
-                return;
-            }
-            this.setState("probing");
-
-            this.canvas = document.createElement("canvas");
-            this.canvas.id = "rtx-canvas";
-            this.canvas.setAttribute("aria-hidden", "true");
-            this.canvas.style.cssText =
-                "position:fixed;inset:0;z-index:-1;display:block;width:100%;height:100%;" +
-                "pointer-events:none;background:transparent;";
-
-            /* 作为 body 首个元素插入，位于 body::before 之上、正文之下 */
-            document.body.prepend(this.canvas);
-
-            const gl = this.canvas.getContext("webgl2", {
+        /* ---- 入口：严格嗅探 WebGL2，采用三级降级策略 ----
+           ① 硬件加速上下文（拒绝软件渲染）→ 优先，天玑 8350 等真机应命中此级
+           ② 软件渲染上下文（部分手机 GPU 驱动被浏览器拉黑时回退 SwiftShader）
+              → 仍可渲染，但自动降低体积光步数以保住帧率，不拦截
+           ③ 完全无法创建 WebGL2 → 才拦截并提示更换现代浏览器/设备        */
+        createContext() {
+            const hw = {
                 alpha: false,
                 antialias: true,
                 depth: false,
@@ -464,13 +442,45 @@ void main() {
                 powerPreference: "high-performance",
                 desynchronized: true,
                 failIfMajorPerformanceCaveat: true
+            };
+            const sw = Object.assign({}, hw, {
+                powerPreference: "default",
+                failIfMajorPerformanceCaveat: false,
+                desynchronized: false
             });
+            let gl = null;
+            try { gl = this.canvas.getContext("webgl2", hw); } catch (e) { gl = null; }
+            if (gl) { this.software = false; return gl; }
+            try { gl = this.canvas.getContext("webgl2", sw); } catch (e) { gl = null; }
+            if (gl) { this.software = true; return gl; }
+            return null;
+        }
+
+        boot() {
+            this.setState("probing");
+            console.log("[RTX] boot @", navigator.userAgent.slice(0, 120));
+
+            this.canvas = document.createElement("canvas");
+            this.canvas.id = "rtx-canvas";
+            this.canvas.setAttribute("aria-hidden", "true");
+            this.canvas.style.cssText =
+                "position:fixed;inset:0;z-index:-1;display:block;width:100%;height:100%;" +
+                "pointer-events:none;background:transparent;";
+
+            const gl = this.createContext();
             if (!gl) {
-                this.canvas.remove();
-                this.fail("WebGL 2.0 上下文创建失败，已回退到静态背景。请更换现代设备后重试。");
+                this.fail("webgl2-unavailable",
+                    "您的设备/浏览器无法创建 WebGL 2.0 上下文，无法运行物理光追引擎。请使用支持 WebGL 2.0 的现代浏览器（Chrome / Edge / Safari 15+）后重试。");
                 return;
             }
             this.gl = gl;
+            document.body.prepend(this.canvas);
+
+            if (this.software) {
+                /* 软件渲染：自动降低体积光步数，保底可渲染但不求 60fps */
+                this.marchSteps = Math.min(this.marchSteps, CFG.softwareMarch || 20);
+                console.warn("[RTX] 软件渲染 WebGL2（GPU 驱动可能被浏览器降级）。已自动降低体积光步数至 " + this.marchSteps + "，真机建议更换硬件加速浏览器获得满血光追。");
+            }
 
             this.compile().then(() => {
                 this.setupGeometry();
@@ -482,14 +492,16 @@ void main() {
                 this.setState("ready");
                 this.start();
             }).catch((err) => {
-                console.warn("[RTX] 着色器加载/编译失败，回退静态背景：", err);
+                console.warn("[RTX] 着色器编译失败，回退静态背景：", err);
                 this.canvas.remove();
-                this.fail("图形引擎加载失败，已回退到静态背景。");
+                this.fail("shader-fail", "图形引擎着色器编译失败，已回退到静态背景。");
             });
         }
 
-        fail(message) {
+        fail(reason, message) {
             this.setState("dead");
+            this.failReason = reason;
+            window.__rtxFail = { stage: reason, message, ua: navigator.userAgent };
             document.documentElement.classList.add("rtx-fallback");
             const bar = document.createElement("div");
             bar.id = "rtx-notice";

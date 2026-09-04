@@ -111,11 +111,13 @@ window.__yaoxiRTG = {
 
 > 若在目标机上实测掉帧：优先降 `uMarch`（保持 100% 分辨率），**不要**降 DPR —— 遵循"满血点对点"硬约束。
 
-## 7. 入口嗅探与兜底
+## 7. 入口嗅探与三级降级兜底
 
-- `detectWebGL2()`：要求 `WebGL2RenderingContext` 存在且能创建带 `failIfMajorPerformanceCaveat:true` 的上下文（拒绝软件渲染的"非现代内核"）。
-- 不满足 → 注入 `#rtx-notice` 提示条（提示更换现代设备，可关闭），页面回退原静态背景，**不拦截正文浏览**。
-- 着色器拉取/编译失败 → 同款回退，控制台输出原因。
+- **① 硬件加速优先**：先以 `failIfMajorPerformanceCaveat:true` 创建上下文（拒绝软件渲染）；真机（含天玑 8350 等 Mali 设备）应命中此级。
+- **② 软件渲染回退**：部分手机 GPU 驱动被浏览器拉黑时 Chromium 会降级到 SwiftShader，此时**不拦截**——改用不带 `failIfMajorPerformanceCaveat` 的上下文继续渲染，并自动把 `uMarch` 降至 20（可用 `window.__yaoxiRTG.config.softwareMarch` 覆盖），控制台输出降级警告。
+- **③ 完全无 WebGL2** → 注入 `#rtx-notice` 提示条（提示使用 Chrome / Edge / Safari 15+ 等现代浏览器），页面回退原静态背景，不拦截正文浏览；失败原因与 UA 写入 `window.__rtxFail` 便于诊断。
+- 着色器编译失败 → 同款回退，控制台输出具体编译日志。
+- 排障提示：若页面未出现任何提示条且背景缺失，说明 `webgl/background.min.js` 未加载（多为部署遗漏 `webgl/` 目录或旧缓存），请检查 Network 面板。
 
 ## 8. 文件清单
 

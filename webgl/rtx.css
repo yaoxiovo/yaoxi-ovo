@@ -1,0 +1,67 @@
+/* ============================================================
+   yaoxi.wiki — WebGL 光追引擎 · HTML/CSS 图层隔离适配层
+   ─────────────────────────────────────────────────────────
+   原则：不破坏现有 DOM 结构。所有新增均为：
+   1) 一个 JS 注入的固定底层 <canvas>（z-index:-1）
+   2) 本样式表仅在引擎就绪后（html.rtx-active）激活
+   引擎失败/不支持时保持原静态背景（html.rtx-fallback）
+   ============================================================ */
+
+/* ---- 固定底层画布：不随 DOM 滚动，仅由 uScrollY 标量在 Shader 内解算视差 ---- */
+#rtx-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: transparent;
+}
+
+/* 引擎就绪后：撤掉原 CSS 渐变背景层，把背景完全交给 WebGL 画布 */
+html.rtx-active body::before {
+    opacity: 0;
+}
+
+html.rtx-active body::after {
+    opacity: 0;
+}
+
+/* ------------------------------------------------------------
+   卡片透光毛玻璃材质重构
+   半透明底色（透出 WebGL 光路）+ SVG 抗色阶微噪点
+   微棱镜色散 / 双光源 GGX 干涉反射 / 切边金光均由 Shader 负责
+   ------------------------------------------------------------ */
+html.rtx-active .news-card,
+html.rtx-active .slide-text {
+    /* 降低不透明度：让下方 WebGL 光路透过卡片 */
+    background:
+        linear-gradient(145deg, var(--glass-sheen), transparent 40%),
+        color-mix(in srgb, var(--glass-solid) 30%, transparent);
+    backdrop-filter: blur(8px) saturate(160%);
+    -webkit-backdrop-filter: blur(8px) saturate(160%);
+    box-shadow:
+        var(--shadow-float),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+/* 卡片顶沿高光 + 抗色阶微噪点（SVG feTurbulence，弱叠加） */
+html.rtx-active .news-card::after,
+html.rtx-active .slide-text::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 140px 140px;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+}
+
+/* 引擎未就绪（不支持/失败）时保持原样 */
+html.rtx-fallback #rtx-canvas {
+    display: none;
+}

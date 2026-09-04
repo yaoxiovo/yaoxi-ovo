@@ -3,7 +3,10 @@
    yaoxi.wiki — 全屏 WebGL2 物理光追 / 全天候环境光引擎
    片元着色器
    ─────────────────────────────────────────────────────────
-   · precision mediump float —— Mali-G615 FP16 双倍吞吐
+   · precision highp float —— 实测修正：mediump(FP16) 在像素坐标域溢出
+     （hash 内 px*456≈1.48M > 65504 上限 → Inf → NaN → 整屏黑；
+      length(px 级向量) 的平方项 ~10.5M 同样溢出 → 太阳/水花消失）。
+     正确性优先，Mali-G615 对 highp 片元吞吐完全可用。
    · 单 Pass 直接输出默认帧缓冲（无 FBO / 无中间纹理 / 无回读）
    · 无分支数学：mix / smoothstep / step
    · 编译友好（移动驱动）：
@@ -12,7 +15,7 @@
      ② 玻璃共享项（双光源 GGX / 干涉 / 色散采样）提出 8 卡片循环外
      ③ 体积光束仅计算一次，bg 与玻璃折射采样共用
    ============================================================ */
-precision mediump float;
+precision highp float;
 
 uniform vec2  uResolution;   // 设备像素 (cssW*dpr, cssH*dpr)
 uniform vec2  uSunPos;       // 太阳屏幕投影点（设备像素，夜间可越界）

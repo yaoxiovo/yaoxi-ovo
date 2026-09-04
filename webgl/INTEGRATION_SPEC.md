@@ -86,11 +86,12 @@ window.__yaoxiRTG = {
 
 | 状态 | 晴天 CLEAR | 雨天 RAIN |
 | --- | --- | --- |
-| 触发 | 白天随机（约 68%）/ 夜间恒为晴天 | 白天随机（约 32%） |
+| 触发 | 随机（约 60%） | 随机（约 40%，**全天候含夜间**——夜间雨幕×幽蓝人造光是核心美术场景） |
+| 切换周期 | 每 45–90s 评估一次；首访 ~18–30s 内即出现首次切换 | 同左 |
 | Shader 效果 | 64 步体积光追（丁达尔光束）、GGX 微表面高光、布朗运动微尘、菲涅尔切边金光 | 多层程序化涟漪法线扰动、透光折射畸变、卡片顶沿飞溅水花 |
 | 过渡 | `uWeather` 0→1 经 `mix()` 双模合成，约 2.5s 平滑 |
 
-状态机常驻在 `WeatherFSM`：约 60–120s 评估一次转移，`uWeather` 指数趋近目标值，避免突变。
+状态机常驻在 `WeatherFSM`，`uWeather` 指数趋近目标值，避免突变。
 
 ## 5. 卡片透光毛玻璃材质（三层协作）
 
@@ -109,7 +110,7 @@ window.__yaoxiRTG = {
 | 折射偏移 | shader `refr = rip*14*uRain` | — | 雨天畸变幅度 |
 | `motion` | `prefers-reduced-motion` 自动 | 1 / 0.2 | 无障碍降速，不关闭渲染 |
 
-> 若在目标机上实测掉帧：优先降 `uMarch`（保持 100% 分辨率），**不要**降 DPR —— 遵循"满血点对点"硬约束。
+> 若在目标机上实测掉帧：引擎已内置**自适应体积光步数**（每 ~2s 依据帧时 EMA 调节 `uSteps`：>24ms 降 16 步、<14ms 升 8 步，区间 16–64），**分辨率/DPR 始终满血点对点、绝不降采样**。可用 `window.__yaoxiRTG.config.adaptiveMarch=false` 关闭，或 `window.__rtx.setMarch(n)` 手动固定。
 
 ## 7. 入口嗅探与三级降级兜底
 
@@ -126,6 +127,7 @@ window.__yaoxiRTG = {
 当前生效档位记录于 `window.__rtx.shaderTier` 并打印 `[RTX] 着色器档位就绪: <tier>`。三级全挂才会弹横幅，且横幅内嵌**可读的驱动错误摘要**（便于手机端截图反馈）。
 
 ### 7.3 已知兼容性坑（踩过）
+- **mediump(FP16) 像素坐标溢出 → 整屏黑**：设备像素可达 ~3240，`hash21` 内 `px*456≈1.48M` 超 FP16 上限 65504 → `Inf` → `fract(Inf)=NaN` 经星点/抖动项污染全屏；`length()` 内部平方项 ~10.5M 同样溢出 → 太阳/水花消失。**修正：片元着色器全线 `precision highp float`**（Mali-G615 highp 片元吞吐完全可用），FP16 双吞吐的理论收益让位于正确性。
 - **内嵌 GLSL 的前导换行**：模板字符串起始换行会让 `#version` 不在第一行，ANGLE（Android Chrome/Edge 的 WebGL 后端）直接判编译失败。`linkProgram()` 内统一 `String(src).trim()` 兜底，**勿移除**。
 - **`smoothstep(edge0, edge1)` 的 edge0 ≥ edge1 属规范未定义行为**，已全部改写为 `1.0 - smoothstep(小, 大, x)` 形式。
 - 非恒定循环界（`for (int i=0; i<uSteps; i++)`）为 ES 3.00 合法语法，可防止驱动展开 64 步体积光循环导致指令超限；但极老驱动若有兼容问题，LITE/MINI 档位可完全规避。

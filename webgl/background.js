@@ -36,7 +36,7 @@ void main() {
 
     const EMBED_FRAG = `
 #version 300 es
-precision mediump float;
+precision highp float;
 uniform vec2  uResolution;
 uniform vec2  uSunPos;
 uniform vec3  uSunDir;
@@ -281,7 +281,7 @@ void main() {
        舍弃：体积光束、雨滴/涟漪、玻璃卡片光路（CSS 毛玻璃依旧生效）。 */
     const EMBED_FRAG_LITE = `
 #version 300 es
-precision mediump float;
+precision highp float;
 uniform vec2  uResolution;
 uniform vec2  uSunPos;
 uniform vec3  uSunColor;
@@ -334,7 +334,7 @@ void main() {
     /* MINI 档位：终极保底 —— 仅天空渐变 + 太阳柔光，几乎不可能编译失败 */
     const EMBED_FRAG_MINI = `
 #version 300 es
-precision mediump float;
+precision highp float;
 uniform vec2  uResolution;
 uniform vec3  uSkyZenith;
 uniform vec3  uSkyHorizon;
@@ -456,15 +456,17 @@ void main() {
             this.smooth = 0;
             this.target = 0;
             this.state = this.states.CLEAR;
-            this.timer = 40 + 20 * Math.random();
+            /* 首次切换提前到 ~18-30s，让访客尽快看到天气模式变化 */
+            this.timer = 18 + 12 * Math.random();
         },
-        /* 返回 uWeather 0..1（约 2.5s 平滑过渡） */
-        update(dt, solar) {
+        /* 返回 uWeather 0..1（约 2.5s 平滑过渡）
+           全天候可下雨：夜间雨幕与幽蓝人造光同屏是核心美术场景，
+           不再按太阳仰角限制（旧逻辑导致夜间访客永远看不到雨） */
+        update(dt) {
             this.timer -= dt;
             if (this.timer <= 0) {
-                this.timer = 60 + 60 * Math.random();
-                const day = solar.elevation > -0.05;
-                const wantRain = day && Math.random() < 0.32;
+                this.timer = 45 + 45 * Math.random();
+                const wantRain = Math.random() < 0.4;
                 this.target = wantRain ? this.states.RAIN : this.states.CLEAR;
             }
             const rate = 1 / 2.5;
@@ -499,6 +501,8 @@ void main() {
             this.state = "idle";
             this.software = false;
             this.shaderTier = null;
+            this.ftEma = 0.016;   // 帧时指数平滑（秒，初值 16ms）
+            this.ftAcc = 0;       // 自适应评估累计器
             this.wfsm = Object.create(WeatherFSM);
             this.theme = 0;
         }
@@ -803,7 +807,33 @@ void main() {
             this.last = now;
             this.update(dt, now / 1000);
             this.draw();
+
+            /* 帧时 EMA + 周期评估：仅自适应体积光步数（规范 §6 认可的
+               唯一调参杠杆），分辨率/DPR 始终满血点对点 */
+            this.ftEma += (dt - this.ftEma) * 0.05;
+            this.ftAcc += dt;
+            if (this.ftAcc > 2.0) {
+                this.ftAcc = 0;
+                this.tuneMarch();
+            }
             this.raf = requestAnimationFrame((t) => this.frame(t));
+        }
+
+        /* 每 ~2s 依据帧时调节体积光步数：>24ms 降 16 步、<14ms 升 8 步，
+           区间 16..MARCH_DEFAULT；可用 window.__yaoxiRTG.config.adaptiveMarch=false 关闭 */
+        tuneMarch() {
+            if (CFG.adaptiveMarch === false) return;
+            const ms = this.ftEma * 1000;
+            const before = this.marchSteps;
+            if (ms > 24 && this.marchSteps > 16) {
+                this.marchSteps -= 16;
+            } else if (ms < 14 && !this.software && this.marchSteps < MARCH_DEFAULT) {
+                this.marchSteps = Math.min(MARCH_DEFAULT, this.marchSteps + 8);
+            }
+            if (this.marchSteps !== before) {
+                console.log("[RTX] 自适应体积光步数:", before, "->", this.marchSteps,
+                    "帧时≈" + ms.toFixed(1) + "ms");
+            }
         }
 
         update(dt, time) {
@@ -829,8 +859,8 @@ void main() {
             const sunX = this.width * 0.5 + (dx / safeZ) * f;
             const sunY = this.height * 0.5 - (dy / safeZ) * f;
 
-            /* 天气状态机 */
-            const weather = this.wfsm.update(dt, solar);
+            /* 天气状态机（全天候双模） */
+            const weather = this.wfsm.update(dt);
             const rain = Math.pow(weather, 1.5);
 
             /* 光标辅助光：指数平滑跟随 */

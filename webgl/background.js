@@ -13,13 +13,264 @@
 
     /* ---------------- 运行时可覆盖配置 ---------------- */
     const CFG = (window.__yaoxiRTG && window.__yaoxiRTG.config) || {};
-    const SHADER_PATH = CFG.shaderPath || {
-        vert: "webgl/background.vert",
-        frag: "webgl/background.frag"
-    };
+    const SHADER_PATH = CFG.shaderPath || null;   // 默认 null → 使用下方内嵌着色器源码
     const CARD_SELECTOR = CFG.cardSelector || ".news-card, .slide-text";
     const MAX_CARDS = 8;
     const MARCH_DEFAULT = CFG.marchSteps || 64;
+
+    /* ---------------- 内嵌 GLSL（与 webgl/background.vert / .frag 保持一致） ----------------
+       默认直内嵌 → 零额外请求、PWA 离线可用、无 fetch 时序失败面；
+       如需单独调试着色器，可配置 window.__yaoxiRTG.config.shaderPath = { vert, frag }
+       指向源文件后由引擎 fetch 覆盖（开发期用，生产默认内嵌）。       */
+    const EMBED_VERT = `
+#version 300 es
+precision highp float;
+layout(location = 0) in vec2 aPos;
+out vec2 vUv;
+void main() {
+    vec2 p = aPos;
+    vUv = p * 0.5 + 0.5;
+    gl_Position = vec4(p, 0.0, 1.0);
+}
+`;
+
+    const EMBED_FRAG = `
+#version 300 es
+precision mediump float;
+uniform vec2  uResolution;
+uniform vec2  uSunPos;
+uniform vec3  uSunDir;
+uniform vec3  uSunColor;
+uniform vec3  uSkyZenith;
+uniform vec3  uSkyHorizon;
+uniform vec3  uAmbient;
+uniform vec3  uGround;
+uniform float uSunElev;
+uniform float uTime;
+uniform float uScrollY;
+uniform float uDPR;
+uniform float uWeather;
+uniform float uRain;
+uniform float uTheme;
+uniform float uMarch;
+uniform int   uCardCount;
+uniform vec4  uCards[8];
+uniform vec2  uCursor;
+uniform float uCursorL;
+in vec2 vUv;
+out vec4 fragColor;
+float hash21(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i);
+    float b = hash21(i + vec2(1.0, 0.0));
+    float c = hash21(i + vec2(0.0, 1.0));
+    float d = hash21(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+float fbm(vec2 p) {
+    float s = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 3; i++) {
+        s += a * vnoise(p);
+        p = p * 2.03 + 17.1;
+        a *= 0.5;
+    }
+    return s;
+}
+float fbm2(vec2 p) {
+    float s = 0.0;
+    float a = 0.6;
+    for (int i = 0; i < 2; i++) {
+        s += a * vnoise(p);
+        p = p * 2.13 + 11.7;
+        a *= 0.5;
+    }
+    return s;
+}
+vec3 skyBase(vec2 px) {
+    vec2 uv = px / uResolution;
+    float he = clamp(uv.y, 0.0, 1.0);
+    vec3 sky = mix(uSkyHorizon, uSkyZenith, pow(he, 0.45));
+    float sunUp = smoothstep(-0.15, 0.22, uSunElev);
+    vec2 toSun = uSunPos - px;
+    float sd = length(toSun);
+    float disc = exp(-sd * sd * 0.9);
+    float glow = exp(-sd * sd * 0.0006);
+    float haze = exp(-sd * sd * 0.00018);
+    sky += uSunColor * (disc * 1.5 + glow * 0.12 + haze * 0.30) * sunUp;
+    float g = smoothstep(0.55, 0.62, uv.y);
+    sky = mix(sky, uGround, g * 0.88);
+    float stars = pow(max(vnoise(px * 0.02 * uDPR) - 0.966, 0.0) * 30.0, 2.0);
+    stars *= (1.0 - sunUp) * smoothstep(0.30, 0.55, uv.y);
+    sky += vec3(0.8, 0.85, 1.0) * stars * 0.5;
+    return sky;
+}
+vec3 atmo(vec2 px) {
+    vec3 c = skyBase(px);
+    float sunUp = smoothstep(-0.05, 0.25, uSunElev);
+    float clearK = (1.0 - uWeather);
+    vec2 dir = (uSunPos - px) / max(uMarch, 1.0);
+    float t = 0.0;
+    vec3 beam = vec3(0.0);
+    float scale = uResolution.y * 0.0016;
+    for (int i = 0; i < 64; i++) {
+        vec2 sp = px + dir * t;
+        float dens = fbm2(sp * scale + vec2(0.0, uTime * 0.02));
+        float occ = smoothstep(0.42, 0.64, dens);
+        beam += uSunColor * (1.0 - occ) * (1.0 - t * 0.012) * 0.05;
+        t += 1.0;
+    }
+    c += beam * sunUp * clearK * 0.55;
+    vec2 q = px * 0.0022 * uDPR + vec2(uTime * 0.030, uTime * 0.015);
+    float n = fbm(q);
+    float spark = pow(max(n - 0.52, 0.0) * 6.0, 2.2);
+    float dSun = length(uSunPos - px);
+    float sunNear = exp(-dSun * 0.0045);
+    c += uSunColor * spark * sunNear * 0.45 * clearK * sunUp;
+    c += uAmbient * spark * 0.10 * clearK;
+    return c;
+}
+float rainStreaks(vec2 p, float t) {
+    float s = 0.0;
+    for (int i = 0; i < 4; i++) {
+        vec2 g = vec2(float(i) * 7.13, float(i) * 13.7);
+        vec2 cell = floor(p * 16.0 + g);
+        float h = hash21(cell);
+        vec2 o = vec2(h, fract(h * 7.31));
+        vec2 q = fract(p * 16.0 + g) - o;
+        vec2 d = normalize(vec2(0.35, -1.0));
+        float along = dot(q, d) + t * (7.0 + float(i) * 2.0) + o.x * 5.0;
+        float across = abs(dot(q, vec2(d.y, -d.x)));
+        float lenM = smoothstep(0.0, 0.02, along) * smoothstep(0.22, 0.02, along);
+        float widM = 1.0 - smoothstep(0.0, 0.018, across);
+        s += lenM * widM * step(0.45, h);
+    }
+    return s * 0.5;
+}
+vec2 ripples(vec2 p, float t) {
+    vec2 acc = vec2(0.0);
+    for (int i = 0; i < 6; i++) {
+        vec2 g = vec2(float(i) * 21.31, float(i) * 37.71);
+        vec2 cell = floor(p * 5.0 + g);
+        float ha = hash21(cell);
+        float hb = hash21(cell + 7.31);
+        vec2 cc = cell + vec2(ha, hb);
+        vec2 d = p * 5.0 + g - cc;
+        float dist = length(d);
+        float speed = 3.2 + float(i) * 0.9;
+        float phase = dist * 24.0 - t * speed;
+        float amp = exp(-dist * 4.2) * (0.5 + 0.5 * sin(phase * 0.4));
+        float w = smoothstep(1.0, 0.25, dist);
+        acc += vec2(cos(phase), sin(phase)) * amp * w * (0.4 + 0.6 * ha);
+    }
+    return acc * 0.14;
+}
+float rectMask(vec2 p, vec4 r) {
+    vec2 d0 = p - r.xy;
+    vec2 d1 = r.xy + r.zw - p;
+    float mx = min(min(d0.x, d0.y), min(d1.x, d1.y));
+    return smoothstep(0.0, 2.0, mx);
+}
+float edgeDist(vec2 p, vec4 r) {
+    vec2 h = r.zw * 0.5;
+    vec2 c = r.xy + h;
+    vec2 q = abs(p - c) - h;
+    float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+    return -d;
+}
+float ggxD(float NoH, float a2) {
+    float d = NoH * NoH * (a2 - 1.0) + 1.0;
+    return a2 / max(3.14159265 * d * d, 1e-5);
+}
+float schlickF(float NoV, float f0) {
+    return f0 + (1.0 - f0) * pow(1.0 - NoV, 5.0);
+}
+vec3 cardSplashes(vec2 px, vec4 r, float t, float rain) {
+    vec3 s = vec3(0.0);
+    for (int i = 0; i < 6; i++) {
+        float hx = hash21(vec2(float(i) * 3.7, 1.3));
+        float hy = hash21(vec2(float(i) * 9.1, 5.7));
+        vec2 sp = vec2(r.x + hx * r.z, r.y + r.w - hy * 6.0);
+        float d = length(px - sp);
+        float pulse = 0.5 + 0.5 * sin(t * 26.0 + float(i) * 2.6);
+        float cycle = fract(hx * 7.0 + t * 0.5);
+        float life = smoothstep(0.0, 1.0, cycle) * (1.0 - smoothstep(0.0, 1.0, cycle));
+        float m = exp(-d * d * 0.06) * pulse * life;
+        s += vec3(0.75, 0.9, 1.0) * m;
+    }
+    return s * rain * 1.1;
+}
+void main() {
+    vec2 px = gl_FragCoord.xy;
+    vec2 basePx = px + vec2(0.0, uScrollY * 0.16);
+    vec2 dp = basePx / uResolution.y;
+    vec2 rip = ripples(dp, uTime);
+    vec2 refr = rip * (14.0 * uRain);
+    vec3 atmoRefr = atmo(px + refr);
+    vec3 bg = atmo(basePx);
+    float streak = rainStreaks(dp, uTime);
+    vec3 rainBg = atmoRefr * (0.86 + 0.20 * streak) + uAmbient * 0.10;
+    bg = mix(bg, rainBg, uWeather);
+    float sunUp = smoothstep(-0.05, 0.25, uSunElev);
+    vec3 tint = mix(vec3(0.55, 0.65, 0.82), vec3(0.93, 0.96, 1.0), uTheme);
+    float glassA = mix(0.88, 0.72, uTheme);
+    vec3 V = vec3(0.0, 0.0, 1.0);
+    vec3 N = normalize(vec3(rip * 0.5, 1.0));
+    float NoV = max(dot(N, V), 0.0);
+    float roug = 0.34;
+    float a2 = roug * roug * roug * roug;
+    vec3 glassAcc = vec3(0.0);
+    float cov = 0.0;
+    for (int i = 0; i < 8; i++) {
+        float act = step(float(i) + 0.5, float(uCardCount) - 0.5);
+        vec4 r = uCards[i];
+        float m = rectMask(px, r) * act;
+        float edge = edgeDist(px, r);
+        float inEdge = (1.0 - exp(-edge * 0.06)) * step(0.0, edge);
+        vec3 col = atmoRefr * tint;
+        vec3 chroma = vec3(0.0);
+        chroma.r = skyBase(px + refr + vec2(3.0, 0.0)).r;
+        chroma.g = skyBase(px + refr + vec2(0.0, 0.0)).g;
+        chroma.b = skyBase(px + refr + vec2(-3.0, 0.0)).b;
+        float dispK = mix(0.5, 1.8, uRain) * (0.3 + 0.7 * sunUp);
+        col += (chroma - atmoRefr) * (inEdge * dispK);
+        vec3 Ls = uSunDir;
+        vec3 Hs = normalize(V + Ls);
+        float NoH = max(dot(N, Hs), 0.0);
+        float NoL = max(dot(N, Ls), 0.0);
+        float Ds = ggxD(NoH, a2);
+        float Fs = schlickF(NoV, 0.04);
+        vec3 sunSpec = uSunColor * Ds * Fs * NoL * sunUp * 0.28;
+        vec3 Lc = normalize(vec3(uCursor - px, -uResolution.y * 0.55));
+        vec3 Hc = normalize(V + Lc);
+        float NoHc = max(dot(N, Hc), 0.0);
+        float NoLc = max(dot(N, Lc), 0.0);
+        float Dc = ggxD(NoHc, a2);
+        float Fc = schlickF(NoV, 0.04);
+        vec3 curSpec = vec3(1.0, 0.98, 0.94) * Dc * Fc * NoLc * uCursorL * 0.6;
+        float inter = 0.5 + 0.5 * sin(NoH * 40.0 + (1.0 - roug) * 14.0);
+        vec3 irid = mix(vec3(0.25, 0.6, 1.0), vec3(1.0, 0.35, 0.55), inter);
+        col += (sunSpec + curSpec) * (0.55 + 0.45 * irid);
+        col += uSunColor * Fs * inEdge * sunUp * 0.9;
+        col += cardSplashes(px, r, uTime, uRain);
+        glassAcc += col * m;
+        cov += m;
+    }
+    cov = clamp(cov, 0.0, 1.0);
+    vec3 final = mix(bg, glassAcc, cov * glassA);
+    vec2 qv = px / uResolution - 0.5;
+    final *= 1.0 - dot(qv, qv) * 0.35;
+    final += (hash21(px) - 0.5) * (1.5 / 255.0);
+    fragColor = vec4(final, 1.0);
+}
+`;
 
     /* ---------------- 北京时间太阳解算（北京 116.4074E / 39.9042N） ---------------- */
     const OBS_LAT = 39.9042 * Math.PI / 180;
@@ -262,10 +513,16 @@
         }
 
         async compile() {
-            const [vs, fs] = await Promise.all([
-                fetch(SHADER_PATH.vert).then((r) => r.text()),
-                fetch(SHADER_PATH.frag).then((r) => r.text())
-            ]);
+            let vs, fs;
+            if (SHADER_PATH) {
+                [vs, fs] = await Promise.all([
+                    fetch(SHADER_PATH.vert).then((r) => r.text()),
+                    fetch(SHADER_PATH.frag).then((r) => r.text())
+                ]);
+            } else {
+                vs = EMBED_VERT;
+                fs = EMBED_FRAG;
+            }
             const gl = this.gl;
             const compileShader = (type, src) => {
                 const s = gl.createShader(type);

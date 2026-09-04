@@ -25,18 +25,21 @@
 - **画布固定不滚动**（`position:fixed`），滚动位移只以**一个标量 Uniform `uScrollY`** 传入，视差与折射全部在 Shader 内并行解算 —— DOM 侧零滚动耦合。
 - `pointer-events:none` 保证不拦截任何交互。
 
-## 2. 接入步骤（三处最小改动）
+## 2. 接入步骤（已在仓库完成集成）
 
-### 2.1 HTML（两行）
+### 2.1 源 HTML（已接入 index.html）
 
-在 `</body>` 前、`main.js` 之后引入：
+在 `<head>`（style.css 之后）与 `</body>` 前（main.js 之后）引入：
 
 ```html
-<link rel="stylesheet" href="webgl/rtx.css">
-<script src="webgl/background.js" defer></script>
+<link rel="stylesheet" href="webgl/rtx.css?v=10-perf-max">
+...
+<script src="webgl/background.js?v=10-perf-max"></script>
 ```
 
-> 注：引擎只做**增强**。未开启/加载失败/WebGL2 不支持时，页面保持原静态背景与卡片样式（`html.rtx-fallback`），无 FOUC、无降级闪烁。
+构建时（`npm run build`）自动处理：`rtx.css` 与 `style.css` **合并内联**为单个 `<style>`（保持"零 CSS 请求、零 FOUC"），`background.js` 压缩加 hash 产出 `dist/webgl/background.min.js?v=...` 并重写引用；着色器源码已内嵌于 JS，**零额外请求**。
+
+> 引擎只做**增强**。未开启/加载失败/WebGL2 不支持时，页面保持原静态背景与卡片样式（`html.rtx-fallback`），无 FOUC、无降级闪烁。
 
 ### 2.2 可选运行参数
 
@@ -46,7 +49,7 @@
 <script>
 window.__yaoxiRTG = {
   config: {
-    shaderPath: { vert: "/webgl/background.vert", frag: "/webgl/background.frag" }, // 部署路径按需改绝对/相对
+    shaderPath: { vert: "/webgl/background.vert", frag: "/webgl/background.frag" }, // 可选：开发期覆盖内嵌着色器
     cardSelector: ".news-card, .slide-text", // 参与光路的玻璃面（≤8）
     marchSteps: 64                            // 晴天体积光步数
   }
@@ -54,13 +57,11 @@ window.__yaoxiRTG = {
 </script>
 ```
 
-### 2.3 PWA / Service Worker
+> 生产默认**不配置** `shaderPath`：着色器源码已内嵌于 `background.js`，单文件加载、PWA 离线可用、无 fetch 时序失败面。仅当需要热调着色器时才指向源文件走 fetch 覆盖。
 
-`sw.js` 需把 `webgl/` 目录纳入缓存（否则离线时回退静态背景）。若使用预缓存清单，追加：
+### 2.3 PWA / Service Worker（已接入）
 
-```js
-"/webgl/background.js", "/webgl/background.vert", "/webgl/background.frag", "/webgl/rtx.css"
-```
+`sw.js` 已将 `"/webgl/background.min.js?v=10-perf-max"` 加入 `SHELL_CACHE` 预缓存清单（`CACHE_NAME` 提升为 `yaoxi-home-v11-rtx`），构建时自动改写为带 hash 的实际文件名；`rtx.css` 已内联进 HTML，无需单独缓存。
 
 ## 3. 视图层级解耦约定
 
@@ -120,7 +121,9 @@ window.__yaoxiRTG = {
 
 | 文件 | 职责 |
 | --- | --- |
-| `webgl/background.vert` | 交付物② 顶点着色器：全屏大三角形 |
-| `webgl/background.frag` | 交付物② 片元着色器：大气光追 / 双模天气 / 玻璃光路 |
-| `webgl/background.js` | 交付物③ 控制器：调度循环 + 状态机 + 太阳/色温样条 |
-| `webgl/rtx.css` | 交付物① 图层隔离与透光玻璃适配样式 |
+| `webgl/background.vert` | 交付物② 顶点着色器：全屏大三角形（源文件，已内嵌于 background.js） |
+| `webgl/background.frag` | 交付物② 片元着色器：大气光追 / 双模天气 / 玻璃光路（源文件，已内嵌于 background.js） |
+| `webgl/background.js` | 交付物③ 控制器：调度循环 + 状态机 + 太阳/色温样条（内嵌着色器，单文件自包含） |
+| `webgl/rtx.css` | 交付物① 图层隔离与透光玻璃适配样式（构建时并入 style.css 内联） |
+| `scripts/build.mjs` | 已扩展：合并内联 rtx.css、压缩加 hash 产出 background.min.js 并重写引用 |
+| `sw.js` | 已扩展：SHELL_CACHE 预缓存 background.min.js，CACHE_NAME → v11-rtx |

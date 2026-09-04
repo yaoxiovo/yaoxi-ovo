@@ -145,7 +145,7 @@ float rainStreaks(vec2 p, float t) {
         vec2 d = normalize(vec2(0.35, -1.0));
         float along = dot(q, d) + t * (7.0 + float(i) * 2.0) + o.x * 5.0;
         float across = abs(dot(q, vec2(d.y, -d.x)));
-        float lenM = smoothstep(0.0, 0.02, along) * smoothstep(0.22, 0.02, along);
+        float lenM = smoothstep(0.0, 0.02, along) * (1.0 - smoothstep(0.02, 0.22, along));
         float widM = 1.0 - smoothstep(0.0, 0.018, across);
         s += lenM * widM * step(0.45, h);
     }
@@ -166,7 +166,7 @@ vec2 ripples(vec2 p, float t) {
         float speed = 3.2 + float(i) * 0.9;
         float phase = dist * 24.0 - t * speed;
         float amp = exp(-dist * 4.2) * (0.5 + 0.5 * sin(phase * 0.4));
-        float w = smoothstep(1.0, 0.25, dist);
+        float w = 1.0 - smoothstep(0.25, 1.0, dist);
         acc += vec2(cos(phase), sin(phase)) * amp * w * (0.4 + 0.6 * ha);
     }
     return acc * 0.14;

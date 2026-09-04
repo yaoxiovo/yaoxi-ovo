@@ -150,7 +150,7 @@ float rainStreaks(vec2 p, float t) {
         vec2 d = normalize(vec2(0.35, -1.0));
         float along = dot(q, d) + t * (7.0 + float(i) * 2.0) + o.x * 5.0;
         float across = abs(dot(q, vec2(d.y, -d.x)));
-        float lenM = smoothstep(0.0, 0.02, along) * smoothstep(0.22, 0.02, along);
+        float lenM = smoothstep(0.0, 0.02, along) * (1.0 - smoothstep(0.02, 0.22, along));
         float widM = 1.0 - smoothstep(0.0, 0.018, across);
         s += lenM * widM * step(0.45, h);
     }
@@ -169,7 +169,7 @@ vec2 ripples(vec2 p, float t) {
         float speed = 3.2 + float(i) * 0.9;
         float phase = dist * 24.0 - t * speed;
         float amp = exp(-dist * 4.2) * (0.5 + 0.5 * sin(phase * 0.4));
-        float w = smoothstep(1.0, 0.25, dist);
+        float w = 1.0 - smoothstep(0.25, 1.0, dist);
         acc += vec2(cos(phase), sin(phase)) * amp * w * (0.4 + 0.6 * ha);
     }
     return acc * 0.14;
@@ -273,6 +273,83 @@ void main() {
     final *= 1.0 - dot(qv, qv) * 0.35;
     final += (hash21(px) - 0.5) * (1.5 / 255.0);
     fragColor = vec4(final, 1.0);
+}
+`;
+
+    /* LITE 档位：无循环 / 无数组 / 无动态索引，纯数学大气 —— 驱动兼容性极高。
+       保留：动态天空、太阳光盘与光晕、深夜星点、滚动视差、光标辉光、暗角、抖动。
+       舍弃：体积光束、雨滴/涟漪、玻璃卡片光路（CSS 毛玻璃依旧生效）。 */
+    const EMBED_FRAG_LITE = `
+#version 300 es
+precision mediump float;
+uniform vec2  uResolution;
+uniform vec2  uSunPos;
+uniform vec3  uSunColor;
+uniform vec3  uSkyZenith;
+uniform vec3  uSkyHorizon;
+uniform vec3  uGround;
+uniform float uSunElev;
+uniform float uScrollY;
+uniform float uDPR;
+uniform vec2  uCursor;
+uniform float uCursorL;
+in vec2 vUv;
+out vec4 fragColor;
+float hash21(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i);
+    float b = hash21(i + vec2(1.0, 0.0));
+    float c = hash21(i + vec2(0.0, 1.0));
+    float d = hash21(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+void main() {
+    vec2 px = gl_FragCoord.xy + vec2(0.0, uScrollY * 0.16);
+    vec2 uv = px / uResolution;
+    vec3 sky = mix(uSkyHorizon, uSkyZenith, pow(clamp(uv.y, 0.0, 1.0), 0.45));
+    float sunUp = smoothstep(-0.15, 0.22, uSunElev);
+    float sd = length(uSunPos - px);
+    sky += uSunColor * (exp(-sd * sd * 0.9) * 1.5 + exp(-sd * sd * 0.0006) * 0.12 + exp(-sd * sd * 0.00018) * 0.30) * sunUp;
+    float g = smoothstep(0.55, 0.62, uv.y);
+    sky = mix(sky, uGround, g * 0.88);
+    float stars = pow(max(vnoise(px * 0.02 * uDPR) - 0.966, 0.0) * 30.0, 2.0);
+    stars *= (1.0 - sunUp) * smoothstep(0.30, 0.55, uv.y);
+    sky += vec3(0.8, 0.85, 1.0) * stars * 0.5;
+    float cd = length(uCursor - gl_FragCoord.xy);
+    sky += vec3(1.0, 0.98, 0.94) * exp(-cd * cd * 0.00002) * uCursorL * 0.30;
+    vec2 qv = uv - 0.5;
+    sky *= 1.0 - dot(qv, qv) * 0.35;
+    sky += (hash21(gl_FragCoord.xy) - 0.5) * (1.5 / 255.0);
+    fragColor = vec4(sky, 1.0);
+}
+`;
+
+    /* MINI 档位：终极保底 —— 仅天空渐变 + 太阳柔光，几乎不可能编译失败 */
+    const EMBED_FRAG_MINI = `
+#version 300 es
+precision mediump float;
+uniform vec2  uResolution;
+uniform vec3  uSkyZenith;
+uniform vec3  uSkyHorizon;
+uniform vec2  uSunPos;
+uniform vec3  uSunColor;
+uniform float uSunElev;
+in vec2 vUv;
+out vec4 fragColor;
+void main() {
+    vec2 uv = gl_FragCoord.xy / uResolution;
+    vec3 sky = mix(uSkyHorizon, uSkyZenith, pow(clamp(uv.y, 0.0, 1.0), 0.45));
+    float sunUp = smoothstep(-0.15, 0.22, uSunElev);
+    float sd = length(uSunPos - gl_FragCoord.xy);
+    sky += uSunColor * exp(-sd * sd * 0.0002) * 0.35 * sunUp;
+    fragColor = vec4(sky, 1.0);
 }
 `;
 
@@ -421,6 +498,7 @@ void main() {
             this.scrollY = 0;
             this.state = "idle";
             this.software = false;
+            this.shaderTier = null;
             this.wfsm = Object.create(WeatherFSM);
             this.theme = 0;
         }
@@ -497,9 +575,11 @@ void main() {
                 this.start();
             }).catch((err) => {
                 const detail = String((err && err.message) || err).slice(0, 500);
-                console.warn("[RTX] 着色器编译失败，回退静态背景：", err);
+                console.warn("[RTX] 全部着色器档位编译失败，回退静态背景：", err);
                 this.canvas.remove();
-                this.fail("shader-fail", "图形引擎着色器编译失败，已回退到静态背景。", detail);
+                this.fail("shader-fail",
+                    "图形引擎着色器编译失败，已回退静态背景。如需反馈请截图：【" +
+                    detail.replace(/\s+/g, " ").slice(0, 160) + "】", detail);
             });
         }
 
@@ -535,40 +615,67 @@ void main() {
         }
 
         async compile() {
-            let vs, fs;
+            let fullFrag = EMBED_FRAG;
             if (SHADER_PATH) {
-                [vs, fs] = await Promise.all([
-                    fetch(SHADER_PATH.vert).then((r) => r.text()),
-                    fetch(SHADER_PATH.frag).then((r) => r.text())
-                ]);
-            } else {
-                vs = EMBED_VERT;
-                fs = EMBED_FRAG;
+                /* 开发期可选：fetch 覆盖完整档位着色器源码 */
+                fullFrag = await fetch(SHADER_PATH.frag).then((r) => r.text());
             }
+            /* 三级自愈：FULL → LITE → MINI，首个编译成功的档位生效，
+               用户永远不会看到"编译失败"（除非三级全挂） */
+            const variants = [
+                ["full", fullFrag],
+                ["lite", EMBED_FRAG_LITE],
+                ["mini", EMBED_FRAG_MINI]
+            ];
+            let lastErr = null;
+            for (const [tier, fragSrc] of variants) {
+                try {
+                    this.linkProgram(EMBED_VERT, fragSrc);
+                    this.shaderTier = tier;
+                    console.log("[RTX] 着色器档位就绪:", tier);
+                    return;
+                } catch (err) {
+                    lastErr = err;
+                    console.warn("[RTX] 着色器档位 " + tier + " 编译失败:", err && err.message);
+                }
+            }
+            throw lastErr || new Error("所有着色器档位编译失败");
+        }
+
+        linkProgram(vertSrc, fragSrc) {
             const gl = this.gl;
+            /* 关键：GLSL 规定 #version 必须是第一行，模板字符串的起始换行/BOM
+               会被 ANGLE 等严格驱动直接判编译失败 —— 此处统一 trim 兜底 */
             const compileShader = (type, src) => {
                 const s = gl.createShader(type);
-                gl.shaderSource(s, src);
+                gl.shaderSource(s, String(src).trim());
                 gl.compileShader(s);
                 if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
                     const log = gl.getShaderInfoLog(s);
                     gl.deleteShader(s);
-                    throw new Error("Shader compile: " + log);
+                    throw new Error(String(log).slice(0, 300));
                 }
                 return s;
             };
-            const vsH = compileShader(gl.VERTEX_SHADER, vs);
-            const fsH = compileShader(gl.FRAGMENT_SHADER, fs);
-            const prog = gl.createProgram();
-            gl.attachShader(prog, vsH);
-            gl.attachShader(prog, fsH);
-            gl.linkProgram(prog);
-            gl.deleteShader(vsH);
-            gl.deleteShader(fsH);
-            if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-                throw new Error("Program link: " + gl.getProgramInfoLog(prog));
+            let vsH = null, fsH = null, prog = null;
+            try {
+                vsH = compileShader(gl.VERTEX_SHADER, vertSrc);
+                fsH = compileShader(gl.FRAGMENT_SHADER, fragSrc);
+                prog = gl.createProgram();
+                gl.attachShader(prog, vsH);
+                gl.attachShader(prog, fsH);
+                gl.linkProgram(prog);
+                if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+                    throw new Error(String(gl.getProgramInfoLog(prog)).slice(0, 300));
+                }
+                this.prog = prog;
+            } catch (e) {
+                if (prog) gl.deleteProgram(prog);
+                throw e;
+            } finally {
+                if (vsH) gl.deleteShader(vsH);
+                if (fsH) gl.deleteShader(fsH);
             }
-            this.prog = prog;
         }
 
         setupGeometry() {

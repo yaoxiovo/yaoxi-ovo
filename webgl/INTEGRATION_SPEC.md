@@ -113,10 +113,22 @@ window.__yaoxiRTG = {
 
 ## 7. 入口嗅探与三级降级兜底
 
+### 7.1 上下文三级降级
 - **① 硬件加速优先**：先以 `failIfMajorPerformanceCaveat:true` 创建上下文（拒绝软件渲染）；真机（含天玑 8350 等 Mali 设备）应命中此级。
-- **② 软件渲染回退**：部分手机 GPU 驱动被浏览器拉黑时 Chromium 会降级到 SwiftShader，此时**不拦截**——改用不带 `failIfMajorPerformanceCaveat` 的上下文继续渲染，并自动把 `uMarch` 降至 20（可用 `window.__yaoxiRTG.config.softwareMarch` 覆盖），控制台输出降级警告。
+- **② 软件渲染回退**：部分手机 GPU 驱动被浏览器拉黑时 Chromium 会降级到 SwiftShader，此时**不拦截**——改用不带 `failIfMajorPerformanceCaveat` 的上下文继续渲染，并自动把 `uSteps` 降至 20（可用 `window.__yaoxiRTG.config.softwareMarch` 覆盖），控制台输出降级警告。
 - **③ 完全无 WebGL2** → 注入 `#rtx-notice` 提示条（提示使用 Chrome / Edge / Safari 15+ 等现代浏览器），页面回退原静态背景，不拦截正文浏览；失败原因与 UA 写入 `window.__rtxFail` 便于诊断。
-- 着色器编译失败 → 同款回退，控制台输出具体编译日志。
+
+### 7.2 着色器三级自愈（FULL → LITE → MINI）
+拿到 WebGL2 上下文后，按档位顺序编译，**首个成功的档位自动生效**，用户无感知：
+- **FULL**：完整光追（体积光束/雨滴涟漪/玻璃色散/双光源 GGX）；
+- **LITE**：无循环、无数组、无动态索引的纯数学大气（天空/太阳/星点/视差/光标辉光），规避驱动循环展开与索引限制；
+- **MINI**：天空渐变 + 太阳柔光，终极保底。
+当前生效档位记录于 `window.__rtx.shaderTier` 并打印 `[RTX] 着色器档位就绪: <tier>`。三级全挂才会弹横幅，且横幅内嵌**可读的驱动错误摘要**（便于手机端截图反馈）。
+
+### 7.3 已知兼容性坑（踩过）
+- **内嵌 GLSL 的前导换行**：模板字符串起始换行会让 `#version` 不在第一行，ANGLE（Android Chrome/Edge 的 WebGL 后端）直接判编译失败。`linkProgram()` 内统一 `String(src).trim()` 兜底，**勿移除**。
+- **`smoothstep(edge0, edge1)` 的 edge0 ≥ edge1 属规范未定义行为**，已全部改写为 `1.0 - smoothstep(小, 大, x)` 形式。
+- 非恒定循环界（`for (int i=0; i<uSteps; i++)`）为 ES 3.00 合法语法，可防止驱动展开 64 步体积光循环导致指令超限；但极老驱动若有兼容问题，LITE/MINI 档位可完全规避。
 - 排障提示：若页面未出现任何提示条且背景缺失，说明 `webgl/background.min.js` 未加载（多为部署遗漏 `webgl/` 目录或旧缓存），请检查 Network 面板。
 
 ## 8. 文件清单

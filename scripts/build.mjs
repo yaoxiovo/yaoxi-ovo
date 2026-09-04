@@ -17,15 +17,22 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const VER = "10-perf-max";
 
-// ---------- 1. 压缩 CSS ----------
-const cssResult = await build({
+// ---------- 1. 压缩 CSS（style.css + webgl/rtx.css 合并内联） ----------
+const cssStyle = await build({
   entryPoints: [join(root, "style.css")],
   bundle: false,
   minify: true,
   write: false,
   logLevel: "silent",
 });
-const cssMin = cssResult.outputFiles[0].text;
+const cssRtx = await build({
+  entryPoints: [join(root, "webgl/rtx.css")],
+  bundle: false,
+  minify: true,
+  write: false,
+  logLevel: "silent",
+});
+const cssMin = cssStyle.outputFiles[0].text + "\n" + cssRtx.outputFiles[0].text;
 
 // ---------- 2. 压缩 JS（带 hash） ----------
 const jsResult = await build({
@@ -40,6 +47,19 @@ const jsMin = jsResult.outputFiles[0].text;
 const jsHash = createHash("sha256").update(jsMin).digest("hex").slice(0, 8);
 const jsFile = `main.min.js?v=${VER}-${jsHash}`;
 
+// ---------- 2b. 压缩 WebGL 光追引擎（带 hash；着色器已内嵌于 JS，零额外请求） ----------
+const bgResult = await build({
+  entryPoints: [join(root, "webgl/background.js")],
+  bundle: false,
+  minify: true,
+  write: false,
+  target: "es2019",
+  logLevel: "silent",
+});
+const bgMin = bgResult.outputFiles[0].text;
+const bgHash = createHash("sha256").update(bgMin).digest("hex").slice(0, 8);
+const bgFile = `background.min.js?v=${VER}-${bgHash}`;
+
 // ---------- 3. 压缩 SW ----------
 const swResult = await build({
   entryPoints: [join(root, "sw.js")],
@@ -49,24 +69,32 @@ const swResult = await build({
   target: "es2019",
   logLevel: "silent",
 });
-const swMin = swResult.outputFiles[0].text.replace(
-  /main\.min\.js\?v=[^"]*/g,
-  `main.min.js?v=${VER}-${jsHash}`
-);
+const swMin = swResult.outputFiles[0].text
+  .replace(/main\.min\.js\?v=[^"]*/g, `main.min.js?v=${VER}-${jsHash}`)
+  .replace(/background\.min\.js\?v=[^"]*/g, `background.min.js?v=${VER}-${bgHash}`);
 
 // ---------- 4. 处理 HTML ----------
 let html = readFileSync(join(root, "index.html"), "utf8");
 
-// CSS 内联：替换 <link rel="stylesheet" href="style.css?v=...">
+// CSS 内联：替换 <link rel="stylesheet" href="style.css?v=..."> 为合并内联样式
 html = html.replace(
   /<link rel="stylesheet" href="style\.css\?v=[^"]*">/,
   () => `<style>${cssMin}</style>`
+);
+// rtx.css 已并入上方内联块，移除其独立 link（零 CSS 请求）
+html = html.replace(
+  /<link rel="stylesheet" href="webgl\/rtx\.css\?v=[^"]*">/,
+  () => ""
 );
 
 // JS 引用替换
 html = html.replace(
   /main\.js\?v=[^"]*/g,
   () => jsFile
+);
+html = html.replace(
+  /webgl\/background\.js\?v=[^"]*/g,
+  () => `webgl/${bgFile}`
 );
 
 // HTML 压缩：去注释 + 压缩空白（保留 <pre> 语义标签与 script/style 内容安全）
@@ -78,6 +106,10 @@ mkdirSync(dist, { recursive: true });
 writeFileSync(join(dist, "index.html"), html);
 writeFileSync(join(dist, jsFile.split("?")[0]), jsMin);
 writeFileSync(join(dist, "sw.js"), swMin);
+
+// WebGL 光追引擎产物（着色器已内嵌，仅产出压缩后的单文件）
+mkdirSync(join(dist, "webgl"), { recursive: true });
+writeFileSync(join(dist, "webgl", bgFile.split("?")[0]), bgMin);
 
 // 复制静态资源（精确清单，不含中间产物）
 const copyList = [

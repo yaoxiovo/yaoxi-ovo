@@ -81,7 +81,7 @@ writeFileSync(join(dist, "sw.js"), swMin);
 
 // 复制静态资源（精确清单，不含中间产物）
 const copyList = [
-  "mother", ".well-known",
+  "mother", ".well-known", "src",
   "avatar.webp", "carousel_bg_1.webp", "project_blog.webp",
   "tech_skills.webp", "tech_engineering.webp", "tech_design.webp",
   "favicon.jpg", "music.mp3", "site.webmanifest", "robots.txt", "sitemap.xml",

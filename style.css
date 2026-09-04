@@ -2907,3 +2907,118 @@ html[lang="en"] .nav-item {
 .ri-music-2-line:before { content: "\ef83"; }
 .ri-qq-fill:before { content: "\f03a"; }
 .ri-user-heart-line:before { content: "\f263"; }
+
+/* ==========================================================================
+   WebGL 2.0 底层视口与图层隔离规范
+   ========================================================================== */
+.gl-viewport-fixed {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+html, body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.tencent-main,
+.news-section,
+.hero-carousel {
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   透光毛玻璃卡片物理材质重构 (.news-card / .card)
+   ========================================================================== */
+.news-card,
+.card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 40%,
+    rgba(12, 22, 42, 0.25) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top-color: rgba(255, 255, 255, 0.32) !important;
+  border-left-color: rgba(255, 255, 255, 0.24) !important;
+  box-shadow: 
+    0 12px 36px 0 rgba(0, 4, 16, 0.38),
+    0 2px 8px 0 rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 16px 0 rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(14px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(135%) !important;
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+.news-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 120, 120, 0.04) 30%,
+    rgba(120, 255, 180, 0.04) 32%,
+    rgba(120, 180, 255, 0.06) 34%,
+    transparent 50%
+  );
+  opacity: 0.7;
+  mix-blend-mode: screen;
+}
+
+/* ==========================================================================
+   WebGL 2.0 现代图形内核降级拦截遮罩
+   ========================================================================== */
+.gl-guard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: radial-gradient(circle at center, #0e1526, #040711);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #f7f9ff;
+}
+
+.gl-guard-content {
+  max-width: 460px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.gl-guard-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.gl-guard-content h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.gl-guard-content p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #9ab0d3;
+}
+

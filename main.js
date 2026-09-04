@@ -1013,7 +1013,21 @@
         initParallax();
         initSkillFill();
         initUmamiStats(); // 开启真实 API 数据抓取与渲染
+        initSkyEngine();  // 启动 WebGL 2.0 物理光追与全天候环境光引擎
     });
+
+    // --- 9. WebGL 2.0 物理光追与全天候环境光引擎 ---
+    function initSkyEngine() {
+        if (typeof window.SkyEngineScheduler === "function") {
+            try {
+                const engine = new window.SkyEngineScheduler("webgl-sky-engine", "gl-fallback-guard");
+                engine.start();
+                window.__skyEngine = engine;
+            } catch (err) {
+                console.error("[SkyEngine] Failed to initialize:", err);
+            }
+        }
+    }
 
     // --- 8. PWA Service Worker 注册 ---
     if ("serviceWorker" in navigator) {

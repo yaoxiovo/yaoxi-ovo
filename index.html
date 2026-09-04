@@ -89,6 +89,18 @@
     </script>
 </head>
 <body>
+    <!-- 全屏 WebGL 2.0 物理光追与全天候环境光引擎画布 (点对点渲染，固定底层) -->
+    <canvas id="webgl-sky-engine" class="gl-viewport-fixed" aria-hidden="true"></canvas>
+
+    <!-- WebGL 2.0 现代内核强制嗅探拦截层 -->
+    <div id="gl-fallback-guard" class="gl-guard-overlay" style="display: none;">
+        <div class="gl-guard-content">
+            <div class="gl-guard-icon">⚡</div>
+            <h2>需要现代图形内核支持</h2>
+            <p>yaoxi.wiki 已启用底层物理光追与全天候环境光引擎，当前设备或浏览器未开启 <strong>WebGL 2.0 (OpenGL ES 3.0)</strong> 硬件加速。请使用最新版现代浏览器访问喵。</p>
+        </div>
+    </div>
+
     <a href="#main-content" class="skip-link">跳过导航，直达主体内容</a>
 
     <noscript>
@@ -570,6 +582,8 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
+    <!-- WebGL 2.0 物理光追与全天候环境光引擎 -->
+    <script src="src/webgl/SkyEngine.js"></script>
     <script src="main.js?v=10-perf-max"></script>
 </body>
 </html>

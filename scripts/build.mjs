@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-const VER = "10-perf-max";
+const VER = "12-scene-console";
 
 // ---------- 1. 压缩 CSS（style.css + webgl/rtx.css 合并内联） ----------
 const cssStyle = await build({

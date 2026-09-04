@@ -32,6 +32,8 @@ uniform float uDPR;          // 设备像素比
 uniform float uWeather;      // 0 晴天 ~ 1 雨天（状态机平滑过渡）
 uniform float uRain;         // 雨量强度
 uniform float uTheme;        // 0 深色 ~ 1 浅色
+uniform float uBeamK;        // 光束强度系数（调节台）
+uniform float uRefrK;        // 雨滴折射系数（调节台）
 uniform int   uSteps;        // 体积光步数（非恒定循环界，默认 64）
 uniform int   uCardCount;    // 参与光路的玻璃卡片数（<= 8）
 uniform vec4  uCards[8];     // 卡片矩形（设备像素 x,y,w,h）
@@ -120,7 +122,7 @@ vec3 godRays(vec2 px) {
         beam += uSunColor * (1.0 - occ) * (1.0 - t * 0.012) * 0.05;
         t += 1.0;
     }
-    return beam * sunUp * clearK * 0.55;
+    return beam * sunUp * clearK * 0.55 * uBeamK;
 }
 
 /* ---------- 晴天：布朗运动微尘 ---------- */
@@ -228,7 +230,7 @@ void main() {
     /* 晴天/雨天双模：涟漪法线扰动 + 透光折射畸变 */
     vec2 dp = basePx / uResolution.y;
     vec2 rip = ripples(dp, uTime);
-    vec2 refr = rip * (14.0 * uRain);
+    vec2 refr = rip * (14.0 * uRain * uRefrK);
 
     /* 体积光束仅算一次，bg 与玻璃折射共用（防驱动展开多份重循环） */
     vec3 beam = godRays(basePx);

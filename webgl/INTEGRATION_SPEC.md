@@ -105,9 +105,11 @@ window.__yaoxiRTG = {
 
 | 参数 | 位置 | 默认 | 说明 |
 | --- | --- | --- | --- |
-| `uMarch` | `window.__rtx.setMarch(n)` | 64 | 晴天体积光步数，8–128；低端核可降至 32 换取帧率 |
-| 体积光强度 | shader `atmo()` 内 `0.55` 系数 | — | 丁达尔光束浓度 |
-| 折射偏移 | shader `refr = rip*14*uRain` | — | 雨天畸变幅度 |
+| `uSteps` | `window.__rtx.setMarch(n)` | 64 | 晴天体积光步数，8–128；低端核可降至 32 换取帧率 |
+| `uBeamK` | `window.__rtx.setBeamK(k)` | 1.0 | 丁达尔光束强度系数 0–2（shader `atmo()` 内 `0.55*uBeamK`） |
+| `uRefrK` | `window.__rtx.setRefrK(k)` | 1.0 | 雨滴折射畸变系数 0–3（shader `refr = rip*14*uRain*uRefrK`） |
+| `uWeather` | `window.__rtx.setWeatherValue(v)` / `setWeatherAuto()` | FSM 自动 | 手动冻结天气混合 0–1（1=全雨）；恢复 FSM 自动切换 |
+| 时间覆盖 | `window.__rtx.setTimeOverride(h)` | `null` | 固定北京小时 0–24 解算太阳/色温；`null` 跟随实际时间 |
 | `motion` | `prefers-reduced-motion` 自动 | 1 / 0.2 | 无障碍降速，不关闭渲染 |
 
 > 若在目标机上实测掉帧：引擎已内置**自适应体积光步数**（每 ~2s 依据帧时 EMA 调节 `uSteps`：>24ms 降 16 步、<14ms 升 8 步，区间 16–64），**分辨率/DPR 始终满血点对点、绝不降采样**。可用 `window.__yaoxiRTG.config.adaptiveMarch=false` 关闭，或 `window.__rtx.setMarch(n)` 手动固定。
@@ -133,13 +135,36 @@ window.__yaoxiRTG = {
 - 非恒定循环界（`for (int i=0; i<uSteps; i++)`）为 ES 3.00 合法语法，可防止驱动展开 64 步体积光循环导致指令超限；但极老驱动若有兼容问题，LITE/MINI 档位可完全规避。
 - 排障提示：若页面未出现任何提示条且背景缺失，说明 `webgl/background.min.js` 未加载（多为部署遗漏 `webgl/` 目录或旧缓存），请检查 Network 面板。
 
-## 8. 文件清单
+## 8. 场景调节台（导航栏全场景自定义 + 实时数值读出）
+
+导航栏 `.scene-toggle`（均衡器图标）→ 弹出玻璃面板 `#scenePanel`，控制器内嵌于 `webgl/background.js` 的 `initScenePanel()`，引擎启动即挂载，**不依赖 rtx-active**（引擎离线时读出显示"引擎未运行"并禁用控制区）。
+
+### 8.1 数值读出（2.5Hz，面板开启时才轮询）
+渲染状态（运行中/运行中·软渲/引擎未运行）、FPS/帧时、着色器档位（FULL/LITE/MINI）、体积光步数（含"手动"标记）、天气混合值、太阳仰角/方位角、屏幕分辨率 @DPR —— 数据源 `window.__rtx.getStats()`。
+
+### 8.2 控制项（拖动即生效，全部实时反映到下一帧 uniform）
+| 控件 | 行为 |
+| --- | --- |
+| 天气混合滑杆 + "自动天气" | 拖动 → `setWeatherValue()` 冻结 FSM；勾回 → `setWeatherAuto()`。自动模式下滑杆实时跟随 FSM 输出（拖动中不反写） |
+| 北京时间滑杆 + "跟随实际时间" | 拖动 → `setTimeOverride(h)` 固定太阳/色温解算；勾回 → `null` |
+| 体积光步数滑杆 + "帧率自适应" | 拖动 → `setMarchManual(n)` 固定步数；勾回 → 恢复自适应。自动模式下跟随自适应输出 |
+| 光束强度 / 雨滴折射 | `setBeamK(0–2)` / `setRefrK(0–3)`，直通 shader `uBeamK`/`uRefrK` |
+| 恢复默认 | `resetScene()` + 清除持久化 |
+
+### 8.3 持久化
+用户自定义写入 `localStorage("yaoxiSceneCfg")`（含各滑杆值与自动开关态），下次访问静默恢复；"恢复默认"即删除。隐私模式存储不可用时静默降级为会话级。
+
+### 8.4 无障碍与 i18n
+- 开合同步 `aria-expanded` / `aria-hidden`；ESC 关闭并归还焦点；滑杆 `focus-visible` 高亮。
+- 静态文案走 main.js i18n；动态数值标签（自动/手动/跟随本地等）由面板内置 zh-CN/zh-TW/en 字典按 `document.documentElement.lang` 渲染。
+
+## 9. 文件清单
 
 | 文件 | 职责 |
 | --- | --- |
 | `webgl/background.vert` | 交付物② 顶点着色器：全屏大三角形（源文件，已内嵌于 background.js） |
 | `webgl/background.frag` | 交付物② 片元着色器：大气光追 / 双模天气 / 玻璃光路（源文件，已内嵌于 background.js） |
-| `webgl/background.js` | 交付物③ 控制器：调度循环 + 状态机 + 太阳/色温样条（内嵌着色器，单文件自包含） |
-| `webgl/rtx.css` | 交付物① 图层隔离与透光玻璃适配样式（构建时并入 style.css 内联） |
+| `webgl/background.js` | 交付物③ 控制器：调度循环 + 状态机 + 太阳/色温样条 + 场景调节台控制器（内嵌着色器，单文件自包含） |
+| `webgl/rtx.css` | 交付物① 图层隔离与透光玻璃适配样式 + 调节台玻璃面板样式（构建时并入 style.css 内联） |
 | `scripts/build.mjs` | 已扩展：合并内联 rtx.css、压缩加 hash 产出 background.min.js 并重写引用 |
-| `sw.js` | 已扩展：SHELL_CACHE 预缓存 background.min.js，CACHE_NAME → v11-rtx |
+| `sw.js` | 已扩展：SHELL_CACHE 预缓存 background.min.js，CACHE_NAME → v12-scene-console |

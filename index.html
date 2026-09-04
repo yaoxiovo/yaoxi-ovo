@@ -123,6 +123,9 @@
                     <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="en" aria-pressed="false">EN</button>
                 </div>
+                <button class="scene-toggle" id="sceneToggle" type="button" aria-label="场景调节" aria-expanded="false" aria-controls="scenePanel" title="场景调节">
+                    <i class="ri-equalizer-line" aria-hidden="true"></i>
+                </button>
                 <button class="theme-toggle" id="themeToggle" type="button" data-theme-mode="auto" aria-label="主题跟随时间，点击切换到浅色模式" title="主题跟随时间，点击切换到浅色模式">
                     <i class="ri-contrast-2-line" aria-hidden="true"></i>
                 </button>
@@ -511,6 +514,73 @@
             </div>
         </div>
     </footer>
+
+    <!-- 场景引擎调节台：全场景参数自定义 + 实时数值读出（由 webgl/background.js 驱动） -->
+    <aside id="scenePanel" class="scene-panel" aria-label="场景引擎调节台" aria-hidden="true">
+        <div class="scene-head">
+            <span class="scene-title"><i class="ri-equalizer-line" aria-hidden="true"></i> 场景调节台</span>
+            <button class="scene-close" id="sceneClose" type="button" aria-label="关闭场景调节">&times;</button>
+        </div>
+
+        <section class="scene-section">
+            <h4 class="scene-sub">数值读出</h4>
+            <dl class="scene-stats">
+                <div><dt>渲染状态</dt><dd id="stMode">--</dd></div>
+                <div><dt>FPS / 帧时</dt><dd id="stFps">--</dd></div>
+                <div><dt>着色器档位</dt><dd id="stTier">--</dd></div>
+                <div><dt>体积光步数</dt><dd id="stMarch">--</dd></div>
+                <div><dt>天气混合</dt><dd id="stWeather">--</dd></div>
+                <div><dt>太阳仰角</dt><dd id="stSun">--</dd></div>
+                <div><dt>屏幕分辨率</dt><dd id="stRes">--</dd></div>
+            </dl>
+        </section>
+
+        <section class="scene-section">
+            <h4 class="scene-sub">场景控制</h4>
+
+            <div class="ctl-block">
+                <div class="ctl-row">
+                    <span class="ctl-name">天气混合<em class="ctl-val" id="vWeather">自动</em></span>
+                    <input type="range" id="ctlWeather" min="0" max="1" step="0.01" value="0" aria-label="天气混合">
+                </div>
+                <label class="ctl-check"><input type="checkbox" id="ctlWeatherAuto" checked>自动天气</label>
+            </div>
+
+            <div class="ctl-block">
+                <div class="ctl-row">
+                    <span class="ctl-name">北京时间<em class="ctl-val" id="vTime">跟随本地</em></span>
+                    <input type="range" id="ctlTime" min="0" max="24" step="0.1" value="12" aria-label="北京时间">
+                </div>
+                <label class="ctl-check"><input type="checkbox" id="ctlTimeAuto" checked>跟随实际时间</label>
+            </div>
+
+            <div class="ctl-block">
+                <div class="ctl-row">
+                    <span class="ctl-name">体积光步数<em class="ctl-val" id="vMarch">64</em></span>
+                    <input type="range" id="ctlMarch" min="16" max="128" step="8" value="64" aria-label="体积光步数">
+                </div>
+                <label class="ctl-check"><input type="checkbox" id="ctlMarchAuto" checked>帧率自适应（手动拖动即固定）</label>
+            </div>
+
+            <div class="ctl-block">
+                <div class="ctl-row">
+                    <span class="ctl-name">光束强度<em class="ctl-val" id="vBeam">1.00</em></span>
+                    <input type="range" id="ctlBeam" min="0" max="2" step="0.05" value="1" aria-label="光束强度">
+                </div>
+            </div>
+
+            <div class="ctl-block">
+                <div class="ctl-row">
+                    <span class="ctl-name">雨滴折射<em class="ctl-val" id="vRefr">1.00</em></span>
+                    <input type="range" id="ctlRefr" min="0" max="3" step="0.05" value="1" aria-label="雨滴折射">
+                </div>
+            </div>
+
+            <div class="ctl-actions">
+                <button type="button" id="ctlReset" class="scene-btn">恢复默认</button>
+            </div>
+        </section>
+    </aside>
 
     <!-- Cookie偏好设置栏 -->
     <div id="cookie-banner" class="cookie-banner" role="status" aria-live="polite">

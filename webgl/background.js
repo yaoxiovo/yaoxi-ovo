@@ -52,6 +52,8 @@ uniform float uDPR;
 uniform float uWeather;
 uniform float uRain;
 uniform float uTheme;
+uniform float uBeamK;
+uniform float uRefrK;
 uniform int   uSteps;
 uniform int   uCardCount;
 uniform vec4  uCards[8];
@@ -126,7 +128,7 @@ vec3 godRays(vec2 px) {
         beam += uSunColor * (1.0 - occ) * (1.0 - t * 0.012) * 0.05;
         t += 1.0;
     }
-    return beam * sunUp * clearK * 0.55;
+    return beam * sunUp * clearK * 0.55 * uBeamK;
 }
 vec3 dust(vec2 px, float sunUp, float clearK) {
     vec3 c = vec3(0.0);
@@ -216,7 +218,7 @@ void main() {
     vec2 basePx = px + vec2(0.0, uScrollY * 0.16);
     vec2 dp = basePx / uResolution.y;
     vec2 rip = ripples(dp, uTime);
-    vec2 refr = rip * (14.0 * uRain);
+    vec2 refr = rip * (14.0 * uRain * uRefrK);
     vec3 beam = godRays(basePx);
     vec3 bg = skyBase(basePx) + beam + dust(basePx, sunUp, clearK);
     vec3 atmoRefr = skyBase(px + refr) + beam + dust(px + refr, sunUp, clearK);
@@ -353,12 +355,14 @@ void main() {
 }
 `;
 
-    /* ---------------- 北京时间太阳解算（北京 116.4074E / 39.9042N） ---------------- */
+    /* ---------------- 北京时间太阳解算（北京 116.4074E / 39.9042N） ----------------
+       hoursOverride：调节台传入的北京时间小时数（0-24 连续值），
+       为 null 时跟随实际时间 —— 用于场景时间预览（日出/正午/黄昏/深夜） */
     const OBS_LAT = 39.9042 * Math.PI / 180;
     const OBS_LON = 116.4074;
     const TZ = 8;
 
-    function solarPosition(now) {
+    function solarPosition(now, hoursOverride) {
         const utc = now.getTime() + now.getTimezoneOffset() * 60000;
         const bj = new Date(utc + TZ * 3600 * 1000);
         const y = bj.getUTCFullYear();
@@ -366,7 +370,9 @@ void main() {
         const doy = Math.floor(
             (Date.UTC(y, bj.getUTCMonth(), bj.getUTCDate()) - startOfYear) / 86400000
         );
-        const hours = bj.getUTCHours() + bj.getUTCMinutes() / 60 + bj.getUTCSeconds() / 3600;
+        const hours = hoursOverride != null
+            ? hoursOverride
+            : bj.getUTCHours() + bj.getUTCMinutes() / 60 + bj.getUTCSeconds() / 3600;
         const f = (2 * Math.PI / 365.0) * (doy - 1 + hours / 24);
         const eq = 229.18 * (
             0.000075 + 0.001868 * Math.cos(f) - 0.032077 * Math.sin(f)
@@ -503,6 +509,14 @@ void main() {
             this.shaderTier = null;
             this.ftEma = 0.016;   // 帧时指数平滑（秒，初值 16ms）
             this.ftAcc = 0;       // 自适应评估累计器
+            /* 调节台可覆盖参数（null/默认 = 跟随引擎自动逻辑） */
+            this.timeOverride = null;   // 北京时间小时覆盖（null=实际时间）
+            this.beamK = 1.0;           // 光束强度系数
+            this.refrK = 1.0;           // 雨滴折射系数
+            this.marchManual = false;   // 手动步数（关闭自适应）
+            this.weatherManual = false; // 手动天气（暂停 FSM 自动切换）
+            this.lastSunElev = 0;
+            this.lastSunAz = 0;
             this.wfsm = Object.create(WeatherFSM);
             this.theme = 0;
         }
@@ -701,7 +715,7 @@ void main() {
                 "uResolution", "uSunPos", "uSunDir", "uSunColor",
                 "uSkyZenith", "uSkyHorizon", "uAmbient", "uGround",
                 "uSunElev", "uTime", "uScrollY", "uDPR",
-                "uWeather", "uRain", "uTheme", "uSteps",
+                "uWeather", "uRain", "uTheme", "uBeamK", "uRefrK", "uSteps",
                 "uCardCount", "uCards", "uCursor", "uCursorL"
             ];
             const loc = {};
@@ -820,9 +834,10 @@ void main() {
         }
 
         /* 每 ~2s 依据帧时调节体积光步数：>24ms 降 16 步、<14ms 升 8 步，
-           区间 16..MARCH_DEFAULT；可用 window.__yaoxiRTG.config.adaptiveMarch=false 关闭 */
+           区间 16..MARCH_DEFAULT；调节台手动固定步数时跳过；
+           可用 window.__yaoxiRTG.config.adaptiveMarch=false 关闭 */
         tuneMarch() {
-            if (CFG.adaptiveMarch === false) return;
+            if (CFG.adaptiveMarch === false || this.marchManual) return;
             const ms = this.ftEma * 1000;
             const before = this.marchSteps;
             if (ms > 24 && this.marchSteps > 16) {
@@ -840,7 +855,10 @@ void main() {
             const gl = this.gl;
             const u = this.uniforms;
             const now = new Date();
-            const solar = solarPosition(now);
+            /* 调节台时间覆盖：非 null 时按指定北京时间小时数解算太阳 */
+            const solar = solarPosition(now, this.timeOverride);
+            this.lastSunElev = solar.elevation;
+            this.lastSunAz = solar.azimuth;
 
             /* 北京时间色温三次样条（毫秒级连续） */
             const sky = sampleSky(solar.hours);
@@ -859,8 +877,8 @@ void main() {
             const sunX = this.width * 0.5 + (dx / safeZ) * f;
             const sunY = this.height * 0.5 - (dy / safeZ) * f;
 
-            /* 天气状态机（全天候双模） */
-            const weather = this.wfsm.update(dt);
+            /* 天气状态机（全天候双模；调节台手动时冻结 FSM 输出） */
+            const weather = this.weatherManual ? this.wfsm.smooth : this.wfsm.update(dt);
             const rain = Math.pow(weather, 1.5);
 
             /* 光标辅助光：指数平滑跟随 */
@@ -888,6 +906,8 @@ void main() {
             gl.uniform1f(u.uWeather, weather);
             gl.uniform1f(u.uRain, rain);
             gl.uniform1f(u.uTheme, theme);
+            gl.uniform1f(u.uBeamK, this.beamK);   /* LITE/MINI 无此 uniform → location null 静默忽略 */
+            gl.uniform1f(u.uRefrK, this.refrK);
             gl.uniform1i(u.uSteps, Math.max(8, Math.min(128, this.marchSteps | 0)));
             gl.uniform1i(u.uCardCount, this.cardCount);
             gl.uniform4fv(u.uCards, this.cardData);
@@ -906,11 +926,278 @@ void main() {
             gl.bindVertexArray(null);
         }
 
-        /* 调参入口 */
+        /* ---------------- 调节台公共 API ---------------- */
+
+        /* 实时数值读出（数值渲染）：FPS/帧时/档位/天气/太阳/分辨率 */
+        getStats() {
+            return {
+                running: this.state === "ready",
+                fps: this.ftEma > 0 ? Math.round(1 / this.ftEma) : 0,
+                ftMs: +(this.ftEma * 1000).toFixed(1),
+                tier: this.shaderTier || "--",
+                march: this.marchSteps,
+                marchManual: this.marchManual,
+                weather: +this.wfsm.smooth.toFixed(2),
+                weatherManual: this.weatherManual,
+                sunElev: +(this.lastSunElev * 180 / Math.PI).toFixed(1),
+                sunAz: +(this.lastSunAz * 180 / Math.PI).toFixed(0),
+                bjHours: this.timeOverride,
+                res: this.width + "x" + this.height,
+                dpr: this.dpr,
+                software: this.software
+            };
+        }
+
+        /* 手动天气混合值 0..1（冻结 FSM 自动切换） */
+        setWeatherValue(v) {
+            const x = Math.max(0, Math.min(1, +v || 0));
+            this.weatherManual = true;
+            this.wfsm.smooth = x;
+            this.wfsm.target = x;
+        }
+
+        /* 恢复 FSM 自动天气 */
+        setWeatherAuto() {
+            this.weatherManual = false;
+            this.wfsm.target = 0;
+            this.wfsm.timer = Math.min(this.wfsm.timer, 12);
+        }
+
+        /* 时间覆盖（北京小时 0-24；null = 跟随实际时间） */
+        setTimeOverride(hours) {
+            this.timeOverride = hours == null ? null : Math.max(0, Math.min(24, +hours || 0));
+        }
+
+        /* 手动固定体积光步数（关闭自适应），null 恢复自适应 */
+        setMarchManual(n) {
+            if (n == null) {
+                this.marchManual = false;
+            } else {
+                this.marchManual = true;
+                this.setMarch(n);
+            }
+        }
+
+        setBeamK(v) { this.beamK = Math.max(0, Math.min(2, +v || 0)); }
+        setRefrK(v) { this.refrK = Math.max(0, Math.min(3, +v || 0)); }
+
+        /* 一键恢复引擎默认（自动天气/实际时间/自适应步数/默认强度） */
+        resetScene() {
+            this.setWeatherAuto();
+            this.setTimeOverride(null);
+            this.setMarchManual(null);
+            this.marchSteps = MARCH_DEFAULT;
+            this.setBeamK(1);
+            this.setRefrK(1);
+        }
+
         setMarch(n) { this.marchSteps = Math.max(8, Math.min(128, n | 0)); }
         setWeather(weather) {
             this.wfsm.target = weather === "rain" ? this.wfsm.states.RAIN : this.wfsm.states.CLEAR;
         }
+    }
+
+    /* ---------------- 场景调节台控制器（导航栏入口） ----------------
+       · 滑杆 ↔ 引擎 API 双向绑定：自动模式下滑杆实时跟随 FSM/自适应输出
+       · 数值读出 2.5Hz 轮询刷新（面板开启时才轮询，关闭即停，零闲时开销）
+       · 用户自定义持久化 localStorage("yaoxiSceneCfg")；"恢复默认"即清除
+       · 引擎未就绪（rtx-fallback）时自动禁用控制区，读出显示引擎状态 */
+    const SCENE_STORE_KEY = "yaoxiSceneCfg";
+
+    function initScenePanel(rtx) {
+        const $ = (id) => document.getElementById(id);
+        const panel = $("scenePanel");
+        const toggleBtn = $("sceneToggle");
+        if (!panel || !toggleBtn) return;
+
+        const el = {
+            close: $("sceneClose"),
+            ctlWeather: $("ctlWeather"), vWeather: $("vWeather"), ctlWeatherAuto: $("ctlWeatherAuto"),
+            ctlTime: $("ctlTime"), vTime: $("vTime"), ctlTimeAuto: $("ctlTimeAuto"),
+            ctlMarch: $("ctlMarch"), vMarch: $("vMarch"), ctlMarchAuto: $("ctlMarchAuto"),
+            ctlBeam: $("ctlBeam"), vBeam: $("vBeam"),
+            ctlRefr: $("ctlRefr"), vRefr: $("vRefr"),
+            reset: $("ctlReset"),
+            stMode: $("stMode"), stFps: $("stFps"), stTier: $("stTier"),
+            stMarch: $("stMarch"), stWeather: $("stWeather"),
+            stSun: $("stSun"), stRes: $("stRes")
+        };
+
+        /* 动态数值标签多语言（静态文案由 main.js i18n 扫描翻译） */
+        const L10N = {
+            "zh-CN": { auto: "自动", follow: "跟随本地", steps: (n) => n + " 步", manual: "手动", run: "运行中", sw: "运行中·软渲", dead: "引擎未运行", az: "方位" },
+            "zh-TW": { auto: "自動", follow: "跟隨本地", steps: (n) => n + " 步", manual: "手動", run: "運行中", sw: "運行中·軟渲", dead: "引擎未運行", az: "方位" },
+            "en": { auto: "Auto", follow: "Local", steps: (n) => n + " steps", manual: "manual", run: "Running", sw: "Running·SW", dead: "Engine offline", az: "az" }
+        };
+        const L = () => L10N[document.documentElement.lang] || L10N["zh-CN"];
+
+        const num = (v, d, lo, hi) => {
+            const x = +v;
+            return Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : d;
+        };
+        const fmtHours = (h) => {
+            let hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+            if (mm >= 60) { mm = 0; hh += 1; }
+            return String(hh % 24).padStart(2, "0") + ":" + String(mm).padStart(2, "0");
+        };
+
+        let timer = 0;              /* 读出轮询句柄 */
+        const dragging = new Set(); /* 拖动中的滑杆：自动跟随不反写，避免打断用户 */
+
+        /* ----- 持久化 ----- */
+        const save = () => {
+            try {
+                localStorage.setItem(SCENE_STORE_KEY, JSON.stringify({
+                    w: +el.ctlWeather.value, wAuto: el.ctlWeatherAuto.checked,
+                    t: +el.ctlTime.value, tAuto: el.ctlTimeAuto.checked,
+                    m: +el.ctlMarch.value, mAuto: el.ctlMarchAuto.checked,
+                    beam: +el.ctlBeam.value, refr: +el.ctlRefr.value
+                }));
+            } catch (e) { /* 存储不可用（隐私模式）→ 静默降级为会话级 */ }
+        };
+        const restore = () => {
+            let cfg = null;
+            try { cfg = JSON.parse(localStorage.getItem(SCENE_STORE_KEY) || "null"); } catch (e) { cfg = null; }
+            if (!cfg) return;
+            el.ctlWeatherAuto.checked = cfg.wAuto !== false;
+            el.ctlTimeAuto.checked = cfg.tAuto !== false;
+            el.ctlMarchAuto.checked = cfg.mAuto !== false;
+            el.ctlWeather.value = num(cfg.w, 0, 0, 1);
+            el.ctlTime.value = num(cfg.t, 12, 0, 24);
+            el.ctlMarch.value = num(cfg.m, MARCH_DEFAULT, 16, 128);
+            el.ctlBeam.value = num(cfg.beam, 1, 0, 2);
+            el.ctlRefr.value = num(cfg.refr, 1, 0, 3);
+            rtx.setBeamK(+el.ctlBeam.value);
+            rtx.setRefrK(+el.ctlRefr.value);
+            if (!el.ctlWeatherAuto.checked) rtx.setWeatherValue(+el.ctlWeather.value);
+            if (!el.ctlTimeAuto.checked) rtx.setTimeOverride(+el.ctlTime.value);
+            if (!el.ctlMarchAuto.checked) rtx.setMarchManual(+el.ctlMarch.value);
+        };
+
+        /* ----- 数值读出渲染（面板开启期间 2.5Hz） ----- */
+        function syncStats() {
+            const s = rtx.getStats();
+            const alive = !!s.running;
+            const t = L();
+            panel.classList.toggle("is-dead", !alive);
+
+            const ctrls = [el.ctlWeather, el.ctlWeatherAuto, el.ctlTime, el.ctlTimeAuto,
+                el.ctlMarch, el.ctlMarchAuto, el.ctlBeam, el.ctlRefr, el.reset];
+            for (const c of ctrls) if (c) c.disabled = !alive;
+
+            el.stMode.textContent = alive ? (s.software ? t.sw : t.run) : t.dead;
+            el.stFps.textContent = alive ? s.fps + " fps / " + s.ftMs + " ms" : "--";
+            el.stTier.textContent = alive ? String(s.tier).toUpperCase() : "--";
+            el.stMarch.textContent = alive ? t.steps(s.march) + (s.marchManual ? " · " + t.manual : "") : "--";
+            el.stWeather.textContent = alive
+                ? s.weather.toFixed(2) + (s.weatherManual ? "" : " · " + t.auto) : "--";
+            el.stSun.textContent = alive
+                ? (s.sunElev >= 0 ? "+" : "") + s.sunElev.toFixed(1) + "° / " + t.az + " " + s.sunAz + "°" : "--";
+            el.stRes.textContent = alive ? s.res + " @" + s.dpr + "x" : "--";
+
+            /* 自动模式：滑杆实时跟随引擎输出（拖动中除外） */
+            if (alive) {
+                if (el.ctlWeatherAuto.checked && !dragging.has(el.ctlWeather)) {
+                    el.ctlWeather.value = s.weather;
+                }
+                if (el.ctlMarchAuto.checked && !dragging.has(el.ctlMarch)) {
+                    el.ctlMarch.value = s.march;
+                }
+            }
+            el.vWeather.textContent = el.ctlWeatherAuto.checked ? t.auto : (+el.ctlWeather.value).toFixed(2);
+            el.vMarch.textContent = t.steps(+el.ctlMarch.value);
+            el.vTime.textContent = el.ctlTimeAuto.checked ? t.follow : fmtHours(+el.ctlTime.value);
+            el.vBeam.textContent = (+el.ctlBeam.value).toFixed(2);
+            el.vRefr.textContent = (+el.ctlRefr.value).toFixed(2);
+        }
+
+        /* ----- 开合（aria 同步 + 轮询生命周期） ----- */
+        function openPanel() {
+            panel.classList.add("is-open");
+            panel.setAttribute("aria-hidden", "false");
+            toggleBtn.classList.add("is-on");
+            toggleBtn.setAttribute("aria-expanded", "true");
+            syncStats();
+            if (!timer) timer = setInterval(syncStats, 400);
+        }
+        function closePanel() {
+            panel.classList.remove("is-open");
+            panel.setAttribute("aria-hidden", "true");
+            toggleBtn.classList.remove("is-on");
+            toggleBtn.setAttribute("aria-expanded", "false");
+            if (timer) { clearInterval(timer); timer = 0; }
+        }
+
+        toggleBtn.addEventListener("click", () =>
+            panel.classList.contains("is-open") ? closePanel() : openPanel());
+        if (el.close) el.close.addEventListener("click", closePanel);
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && panel.classList.contains("is-open")) {
+                closePanel();
+                toggleBtn.focus();
+            }
+        });
+
+        /* ----- 滑杆 → 引擎 ----- */
+        for (const input of [el.ctlWeather, el.ctlMarch]) {
+            if (!input) continue;
+            input.addEventListener("pointerdown", () => dragging.add(input));
+            window.addEventListener("pointerup", () => dragging.delete(input));
+            window.addEventListener("pointercancel", () => dragging.delete(input));
+        }
+
+        /* 拖动天气滑杆 → 冻结 FSM 手动定值；勾回"自动天气"→ 恢复 FSM */
+        el.ctlWeather.addEventListener("input", () => {
+            el.ctlWeatherAuto.checked = false;
+            rtx.setWeatherValue(+el.ctlWeather.value);
+            save();
+        });
+        el.ctlWeatherAuto.addEventListener("change", () => {
+            if (el.ctlWeatherAuto.checked) rtx.setWeatherAuto();
+            else rtx.setWeatherValue(+el.ctlWeather.value);
+            save();
+        });
+
+        /* 时间覆盖：拖动即固定北京时间（太阳/色温立即重解算）；勾回跟随实际时间 */
+        el.ctlTime.addEventListener("input", () => {
+            el.ctlTimeAuto.checked = false;
+            rtx.setTimeOverride(+el.ctlTime.value);
+            save();
+        });
+        el.ctlTimeAuto.addEventListener("change", () => {
+            rtx.setTimeOverride(el.ctlTimeAuto.checked ? null : +el.ctlTime.value);
+            save();
+        });
+
+        /* 步数：拖动即固定（关闭自适应）；勾回自适应 */
+        el.ctlMarch.addEventListener("input", () => {
+            el.ctlMarchAuto.checked = false;
+            rtx.setMarchManual(+el.ctlMarch.value);
+            save();
+        });
+        el.ctlMarchAuto.addEventListener("change", () => {
+            if (el.ctlMarchAuto.checked) rtx.setMarchManual(null);
+            else rtx.setMarchManual(+el.ctlMarch.value);
+            save();
+        });
+
+        el.ctlBeam.addEventListener("input", () => { rtx.setBeamK(+el.ctlBeam.value); save(); });
+        el.ctlRefr.addEventListener("input", () => { rtx.setRefrK(+el.ctlRefr.value); save(); });
+
+        el.reset.addEventListener("click", () => {
+            rtx.resetScene();
+            el.ctlWeatherAuto.checked = true;
+            el.ctlTimeAuto.checked = true;
+            el.ctlMarchAuto.checked = true;
+            el.ctlMarch.value = MARCH_DEFAULT;
+            el.ctlBeam.value = 1;
+            el.ctlRefr.value = 1;
+            try { localStorage.removeItem(SCENE_STORE_KEY); } catch (e) { /* 同 save */ }
+            syncStats();
+        });
+
+        restore();
+        syncStats();
     }
 
     /* ---------------- 启动 ---------------- */
@@ -919,6 +1206,7 @@ void main() {
         window.__rtx = rtx;
         rtx.wfsm.init();
         rtx.boot();
+        initScenePanel(rtx);
     }
 
     if (document.readyState === "loading") {

@@ -1,10 +1,10 @@
-const CACHE_NAME = "yaoxi-home-v11-rtx";
+const CACHE_NAME = "yaoxi-home-v12-scene-console";
 const SHELL_CACHE = [
   "/",
   "/index.html",
-  "/style.css?v=10-perf-max",
-  "/main.min.js?v=10-perf-max",
-  "/webgl/background.min.js?v=10-perf-max",
+  "/style.css?v=12-scene-console",
+  "/main.min.js?v=12-scene-console",
+  "/webgl/background.min.js?v=12-scene-console",
   "/assets/img/avatar.avif",
   "/assets/img/carousel_bg_1.avif",
   "/assets/img/project_blog.avif",

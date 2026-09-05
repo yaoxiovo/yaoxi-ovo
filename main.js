@@ -690,6 +690,14 @@
         const btnAccept = document.getElementById("btnAcceptCookies");
         const btnReject = document.getElementById("btnRejectCookies");
         const btnClose = document.getElementById("btnCloseCookies");
+        const btnViewDetail = document.getElementById("btnViewCookieDetail");
+        const btnOpenCookieModal = document.getElementById("btnOpenCookieModal");
+
+        const cookieModal = document.getElementById("cookie-detail-modal");
+        const btnCloseModal = document.getElementById("btnCloseCookieModal");
+        const btnCloseModalX = document.getElementById("btnCloseCookieModalX");
+        const btnRejectModal = document.getElementById("btnRejectInModal");
+        const btnAcceptModal = document.getElementById("btnAcceptInModal");
 
         if (!banner) return;
 
@@ -700,30 +708,98 @@
             }, 1000);
         }
 
-        function closeBanner() {
+        function closeBanner(accepted = true) {
             banner.classList.remove("active");
-            localStorage.setItem("cookiesAuthorized", "true");
+            try {
+                localStorage.setItem("cookiesAuthorized", "true");
+                localStorage.setItem("analyticsConsent", accepted ? "true" : "false");
+            } catch (e) {}
+            if (!accepted) {
+                showToast("已记录偏好：关闭分析型监控");
+            } else {
+                showToast("已保存 Cookies 与存储偏好");
+            }
         }
 
-        if (btnAccept) btnAccept.addEventListener("click", closeBanner);
-        if (btnReject) btnReject.addEventListener("click", closeBanner);
-        if (btnClose) btnClose.addEventListener("click", closeBanner);
+        function openDetailModal() {
+            if (cookieModal) {
+                cookieModal.classList.add("active");
+            }
+        }
+
+        function closeDetailModal() {
+            if (cookieModal) {
+                cookieModal.classList.remove("active");
+            }
+        }
+
+        if (btnAccept) btnAccept.addEventListener("click", () => closeBanner(true));
+        if (btnReject) btnReject.addEventListener("click", () => closeBanner(false));
+        if (btnClose) btnClose.addEventListener("click", () => closeBanner(true));
+
+        if (btnViewDetail) btnViewDetail.addEventListener("click", openDetailModal);
+        if (btnOpenCookieModal) btnOpenCookieModal.addEventListener("click", openDetailModal);
+        if (btnCloseModal) btnCloseModal.addEventListener("click", closeDetailModal);
+        if (btnCloseModalX) btnCloseModalX.addEventListener("click", closeDetailModal);
+
+        if (btnRejectModal) {
+            btnRejectModal.addEventListener("click", () => {
+                closeBanner(false);
+                closeDetailModal();
+            });
+        }
+        if (btnAcceptModal) {
+            btnAcceptModal.addEventListener("click", () => {
+                closeBanner(true);
+                closeDetailModal();
+            });
+        }
+
+        if (cookieModal) {
+            cookieModal.addEventListener("click", (e) => {
+                const box = cookieModal.querySelector(".modal-box");
+                if (box && !box.contains(e.target)) {
+                    closeDetailModal();
+                }
+            });
+        }
 
         const triggerCookie = document.getElementById("triggerCookieSettings");
         if (triggerCookie) {
             triggerCookie.addEventListener("click", (e) => {
                 e.preventDefault();
-                banner.classList.add("active");
+                openDetailModal();
             });
         }
+
+        const triggerPrivacy = document.getElementById("triggerPrivacyPolicy");
+        if (triggerPrivacy) {
+            triggerPrivacy.addEventListener("click", (e) => {
+                e.preventDefault();
+                openDetailModal();
+            });
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                closeDetailModal();
+            }
+        });
     }
 
     // --- 5. 复制剪贴板与模态弹窗逻辑 ---
-    function showToast() {
+    function showToast(text) {
         const toast = document.getElementById("copy-toast");
         if (!toast) return;
+        const original = toast.textContent;
+        if (text) toast.textContent = text;
         toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 1800);
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => {
+                if (text) toast.textContent = original;
+            }, 300);
+        }, 1800);
     }
 
     async function copyText(text) {

@@ -59,17 +59,22 @@
       type="text/javascript">
     </script>
     <script>
-      window.FC_RUM && window.FC_RUM.init({
-        applicationId: "Zh4xex9ssiXc55R22LBQCT",
-        clientToken: "06d115e9056d5af28298336769da28d7263",
-        service: "yaoxi_wiki_zhuye",
-        env: "prod",
-        version: "1.0.0",
-        sessionSampleRate: 100,        // 调至 100%，确保每次访问的性能指标都被采集喵
-        sessionReplaySampleRate: 0,    // 静态站点不需要会话录屏，设为 0 避免额外的 Overhead（开销）喵
-        defaultPrivacyLevel: "mask-user-input",
-        allowedTracingUrls: []         // 清空占位符，纯静态直接用空数组喵
-      });
+      (function() {
+        try {
+          if (localStorage.getItem("analyticsConsent") === "false") return;
+          window.FC_RUM && window.FC_RUM.init({
+            applicationId: "Zh4xex9ssiXc55R22LBQCT",
+            clientToken: "06d115e9056d5af28298336769da28d7263",
+            service: "yaoxi_wiki_zhuye",
+            env: "prod",
+            version: "1.0.0",
+            sessionSampleRate: 100,        // 调至 100%，确保每次访问的性能指标都被采集喵
+            sessionReplaySampleRate: 0,    // 静态站点不需要会话录屏，设为 0 避免额外的 Overhead（开销）喵
+            defaultPrivacyLevel: "mask-user-input",
+            allowedTracingUrls: []         // 清空占位符，纯静态直接用空数组喵
+          });
+        } catch (e) {}
+      })();
     </script>
     
     <script type="application/ld+json">
@@ -508,8 +513,8 @@
                     <h4 class="footer-col-title">无障碍与合规</h4>
                     <ul class="footer-col-links">
                         <li><a href="#">WCAG 无障碍规范</a></li>
-                        <li><a href="#cookie-banner" id="triggerCookieSettings">Cookies 偏好设定</a></li>
-                        <li><a href="#">个人隐私保护政策</a></li>
+                        <li><a href="javascript:void(0)" id="triggerCookieSettings">Cookies 偏好设定</a></li>
+                        <li><a href="javascript:void(0)" id="triggerPrivacyPolicy">个人隐私保护政策</a></li>
                         <li><a href="#">技术漏洞安全上报</a></li>
                     </ul>
                 </div>
@@ -534,16 +539,129 @@
     <div id="cookie-banner" class="cookie-banner" role="status" aria-live="polite">
         <div class="cookie-container">
             <div class="cookie-content">
-                <h4 class="cookie-title">您的Cookies偏好</h4>
+                <div class="cookie-title-row">
+                    <svg class="cookie-svg cookie-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <h4 class="cookie-title">Cookies 与数据存储说明</h4>
+                </div>
                 <p class="cookie-desc">
-                    欢迎来到 yaoxi.wiki！我们希望使用分析型Cookies和类似技术（“Cookies”）来改善我们的网站。Cookies收集的信息不会识别您个人。有关我们使用的Cookies的类型以及您的偏好选项（包括如何更改您的偏好设置）的更多信息，请查看此处的 <a href="#" class="cookie-link">Cookies政策</a>。
+                    欢迎来到 yaoxi.wiki！本站为纯静态主页，注重访客隐私安全与透明度。我们仅使用少量<strong>必要本地偏好 (LocalStorage)</strong>、<strong>匿名性能监控 (快猫星云 RUM)</strong> 与 <strong>PWA 离线缓存</strong>优化浏览体验，不收集任何个人身份信息。
+                </p>
+                <div class="cookie-tags-list">
+                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 必要本地存储：主题/语言/音频偏好</span>
+                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 性能监控：快猫星云 RUM (加载耗时/无录屏/输入掩码)</span>
+                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 访问统计：自建 Umami (无追踪 Cookie)</span>
+                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 离线加速：Service Worker 静态缓存</span>
+                </div>
+                <p class="cookie-sub-desc">
+                    了解详情请点击 <a href="javascript:void(0)" class="cookie-link" id="btnOpenCookieModal">查看 Cookies 详细清单与隐私说明</a>。
                 </p>
             </div>
             <div class="cookie-actions">
-                <button class="cookie-btn btn-reject" id="btnRejectCookies">拒绝所有分析型Cookies</button>
-                <button class="cookie-btn btn-accept" id="btnAcceptCookies">接受所有分析型Cookies</button>
+                <button class="cookie-btn btn-detail" id="btnViewCookieDetail" type="button"><svg class="cookie-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 详细清单</button>
+                <button class="cookie-btn btn-reject" id="btnRejectCookies" type="button">拒绝分析监控</button>
+                <button class="cookie-btn btn-accept" id="btnAcceptCookies" type="button">接受全部</button>
             </div>
             <button class="cookie-close" id="btnCloseCookies" aria-label="关闭偏好设置">&times;</button>
+        </div>
+    </div>
+
+    <!-- 模态弹窗: Cookie 与数据存储详细清单 -->
+    <div id="cookie-detail-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cookie-modal-title">
+        <div class="modal-box cookie-detail-modal-box">
+            <div class="cookie-modal-header">
+                <div class="cookie-modal-icon">
+                    <svg class="cookie-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="cookie-modal-title-group">
+                    <h3 class="cookie-modal-title" id="cookie-modal-title">Cookies 与本地存储详细清单</h3>
+                    <p class="cookie-modal-subtitle">透明公开本站使用的所有本地存储与数据监控技术，守护您的隐私安全喵</p>
+                </div>
+                <button class="cookie-modal-close" id="btnCloseCookieModalX" aria-label="关闭详细弹窗">&times;</button>
+            </div>
+
+            <div class="cookie-modal-body">
+                <!-- 1. 必要本地存储 -->
+                <div class="cookie-group">
+                    <div class="cookie-group-title">
+                        <svg class="cookie-svg" style="color: var(--success);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>必要功能与偏好存储</span>
+                        <span class="cookie-group-badge badge-essential">必要项 · 保持运行</span>
+                    </div>
+                    <div class="cookie-item-list">
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">yaoxiTheme</span>
+                            <span class="cookie-item-desc"><strong>LocalStorage</strong> · 保存深浅色主题模式（跟随时间 <code>auto</code> / 浅色 <code>light</code> / 深色 <code>dark</code>），防止页面闪烁。</span>
+                        </div>
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">yaoxiLanguage</span>
+                            <span class="cookie-item-desc"><strong>LocalStorage</strong> · 保存语言偏好设置（简体中文 <code>zh-CN</code> / 繁体中文 <code>zh-TW</code> / 英文 <code>en</code>）。</span>
+                        </div>
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">musicAutoPlay</span>
+                            <span class="cookie-item-desc"><strong>LocalStorage</strong> · 记录是否同意自动播放背景音乐的偏好选择（<code>true</code> / <code>false</code>）。</span>
+                        </div>
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">cookiesAuthorized</span>
+                            <span class="cookie-item-desc"><strong>LocalStorage</strong> · 记录已阅读并确认 Cookie 偏好说明，避免每次刷新重复弹出提示。</span>
+                        </div>
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">analyticsConsent</span>
+                            <span class="cookie-item-desc"><strong>LocalStorage</strong> · 记录您是否允许开启性能监控与分析采集，可随时在下方切换。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 性能体验与统计 -->
+                <div class="cookie-group">
+                    <div class="cookie-group-title">
+                        <svg class="cookie-svg" style="color: var(--accent-cyan);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <span>性能监测与访问统计</span>
+                        <span class="cookie-group-badge badge-analytics">体验调优 · 完全匿名</span>
+                    </div>
+                    <div class="cookie-item-list">
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">快猫星云 (Flashcat RUM)</span>
+                            <span class="cookie-item-desc">
+                                <strong>Browser SDK</strong> · 实时监测首屏加载时间（FCP、LCP、TTFB）、资源耗时及前端运行异常。<br>
+                                <span class="cookie-sub-tip"><svg class="cookie-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>安全保证：</strong>采样率 100%，会话录屏设为 0（彻底关闭屏幕录制），敏感输入全自动掩码脱敏 (<code>mask-user-input</code>)，清空追踪 URL，绝不收集个人隐私与敏感信息。</span>
+                            </span>
+                        </div>
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">Umami Analytics</span>
+                            <span class="cookie-item-desc">
+                                <strong>自建流量统计</strong> · 收集匿名页面访问量 (PV/UV) 与停留时间，用于了解内容受欢迎程度。<br>
+                                <span class="cookie-sub-tip"><svg class="cookie-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <strong>隐私保证：</strong>100% 遵守 GDPR，不使用跨站追踪 Cookie，不记录个人 IP，数据完全存储于站长自建私有服务器。</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 离线缓存 -->
+                <div class="cookie-group">
+                    <div class="cookie-group-title">
+                        <svg class="cookie-svg" style="color: var(--accent-strong);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>离线极速缓存</span>
+                        <span class="cookie-group-badge badge-cache">性能加速 · 本地沙箱</span>
+                    </div>
+                    <div class="cookie-item-list">
+                        <div class="cookie-item">
+                            <span class="cookie-item-name">yaoxi-home-v10-perf-max</span>
+                            <span class="cookie-item-desc"><strong>CacheStorage / SW</strong> · Service Worker 本地离线安全缓存 HTML、CSS、JS、字体切片及图片，实现二次访问秒开及离线可访问能力。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提示说明 -->
+                <div class="cookie-notice-box">
+                    <svg class="cookie-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <strong>如何管理您的存储：</strong>所有本地偏好均存储于您当前设备浏览器沙箱中。若您希望清除所有记录，可随时在浏览器控制台或设置中清理网站数据，或点击下方“拒绝分析监控”关闭性能遥测。
+                </div>
+            </div>
+
+            <div class="cookie-modal-actions">
+                <button class="modal-btn btn-reject" id="btnRejectInModal" type="button">拒绝分析监控</button>
+                <button class="modal-btn btn-accept" id="btnAcceptInModal" type="button">接受全部</button>
+                <button class="modal-btn btn-cancel" id="btnCloseCookieModal" type="button">关闭窗口</button>
+            </div>
         </div>
     </div>
 

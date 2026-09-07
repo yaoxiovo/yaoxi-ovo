@@ -144,8 +144,8 @@ html.light {
   --page: #edf3fc;
   --page-soft: #dfe9f8;
   --text-main: #111a2e;
-  --text-soft: #536078;
-  --text-faint: #79859a;
+  --text-soft: #42526e;
+  --text-faint: #566885;
 
   --glass: rgba(255, 255, 255, 0.55);
   --glass-soft: rgba(255, 255, 255, 0.36);
@@ -179,7 +179,8 @@ body {
   position: relative;
   isolation: isolate;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "SF Pro Text", "Segoe UI", "Noto Sans SC", sans-serif;
+    "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+    "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   color: var(--text-main);
   background-color: var(--page);
   font-size: 16px;
@@ -487,8 +488,8 @@ html.light .nav-menu {
 }
 
 .lang-item {
-  min-width: 29px;
-  height: 26px;
+  min-width: 30px;
+  height: 28px;
   padding: 0 7px;
   border: 1px solid transparent;
   border-radius: 9px;
@@ -496,7 +497,7 @@ html.light .nav-menu {
   color: var(--text-faint);
   background: transparent;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 650;
   line-height: 1;
   transition:
@@ -621,6 +622,72 @@ html.theme-changing .modal-box {
     background-color 0.42s ease,
     border-color 0.42s ease,
     box-shadow 0.42s ease;
+}
+
+.music-toggle {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  appearance: none;
+  color: var(--text-soft);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 62%),
+    var(--glass-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 7px 20px rgba(1, 7, 20, 0.1);
+  cursor: pointer;
+  font-size: 18px;
+  transition:
+    color 0.3s ease,
+    border-color 0.25s ease,
+    background-color 0.3s ease,
+    transform 0.3s var(--ease-spring),
+    box-shadow 0.3s ease;
+}
+
+.music-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 9px;
+  opacity: 0.18;
+  background: currentColor;
+  filter: blur(9px);
+  transition: opacity 0.25s ease;
+}
+
+.music-toggle i {
+  position: relative;
+  z-index: 1;
+}
+
+.music-toggle:hover {
+  border-color: var(--glass-border-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px rgba(1, 7, 20, 0.16);
+  transform: translateY(-2px);
+  color: var(--text-main);
+}
+
+.music-toggle:active {
+  transform: scale(0.92);
+}
+
+.music-toggle.playing {
+  color: var(--accent-pink);
+}
+
+.music-toggle.playing::before {
+  opacity: 0.35;
 }
 
 .nav-toggle {
@@ -901,6 +968,7 @@ html.theme-changing .modal-box {
 }
 
 .indicator-dot {
+  position: relative;
   width: 7px;
   height: 7px;
   padding: 0;
@@ -914,6 +982,16 @@ html.theme-changing .modal-box {
     width 0.35s var(--ease-spring),
     background-color 0.25s ease,
     box-shadow 0.25s ease;
+}
+
+.indicator-dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
 }
 
 .indicator-dot.active {
@@ -1424,7 +1502,7 @@ html[lang="en"] .nav-item {
 .project-link-label span {
   overflow: hidden;
   color: var(--text-faint);
-  font-size: 10px;
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1759,10 +1837,10 @@ html[lang="en"] .nav-item {
 
 .stats-label {
   color: var(--text-faint);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
-  line-height: 1.5;
-  letter-spacing: 0.08em;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
@@ -1874,7 +1952,7 @@ html[lang="en"] .nav-item {
 
 .summary-label {
   color: var(--text-faint);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 580;
 }
 
@@ -1971,25 +2049,33 @@ html[lang="en"] .nav-item {
   list-style: none;
 }
 
-.footer-col-links li a {
+.footer-col-links li a,
+.footer-col-links li button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--text-faint);
   text-decoration: none;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.55;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
   transition:
     color 0.22s ease,
     transform 0.25s var(--ease-spring);
 }
 
-.footer-col-links li a:hover {
+.footer-col-links li a:hover,
+.footer-col-links li button:hover {
   color: var(--text-main);
   transform: translateX(3px);
 }
 
-.footer-col-links li a i {
+.footer-col-links li a i,
+.footer-col-links li button i {
   color: var(--accent);
   font-size: 14px;
 }
@@ -2565,7 +2651,8 @@ html[lang="en"] .nav-item {
     gap: 5px;
   }
 
-  .theme-toggle {
+  .theme-toggle,
+  .music-toggle {
     width: 34px;
     height: 34px;
     flex-basis: 34px;

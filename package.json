@@ -11,8 +11,8 @@
     "url": "git+https://github.com/yaoxiovo/yaoxi-ovo.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Yaoxi",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/yaoxiovo/yaoxi-ovo/issues"

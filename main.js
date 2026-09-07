@@ -64,11 +64,14 @@
         "社会价值": { "zh-TW": "社會價值", "en": "Impact" },
         "统计": { "zh-TW": "統計", "en": "Analytics" },
         "联系": { "zh-TW": "聯絡", "en": "Contact" },
+        "瑶曦启动 2026 前端探索计划": { "zh-TW": "瑤曦啟動 2026 前端探索計畫", "en": "Yaoxi's 2026 Frontend Journey" },
         "瑶曦启动2026前端探索计划": { "zh-TW": "瑤曦啟動 2026 前端探索計畫", "en": "Yaoxi's 2026 Frontend Journey" },
         "专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索，用代码连接热爱与现实，追逐交互艺术的无限可能喵~": { "zh-TW": "專注於 HTML5、CSS3 與 JavaScript 前端技術的學習與探索，用程式碼連結熱愛與現實，追逐互動藝術的無限可能。", "en": "Exploring HTML5, CSS3 and JavaScript to turn curiosity into expressive, thoughtful web experiences." },
         "致力于创造美观且实用的网页": { "zh-TW": "致力於創造美觀且實用的網頁", "en": "Beautiful Web Experiences, Built to Work" },
+        "在高中繁忙的学业之余保持对计算机的热爱，在自学中沉淀技术，用优雅的设计与流畅的交互构筑纯粹的前端视界喵~": { "zh-TW": "在繁忙的高中課業之餘保持對電腦的熱愛，在自學中累積技術，以優雅設計與流暢互動構築純粹的前端視界。", "en": "Alongside a busy high-school schedule, I keep learning, designing and building polished interfaces with calm, fluid interaction." },
         "在高中繁忙的学业之余保持对计算机的热爱，在自学中沉淀技术，用优雅的设计 and 流畅的交互构筑纯粹的前端视界呜喵！": { "zh-TW": "在繁忙的高中課業之餘保持對電腦的熱愛，在自學中累積技術，以優雅設計與流暢互動構築純粹的前端視界。", "en": "Alongside a busy high-school schedule, I keep learning, designing and building polished interfaces with calm, fluid interaction." },
         "科技向善，探索开源的无限可能": { "zh-TW": "科技向善，探索開源的無限可能", "en": "Technology for Good, Powered by Open Source" },
+        "秉承“用户为本，科技向善”的学习初心，关注前端无障碍 (A11y) 体验，用干净、优美、包容的代码为所有人提供平等的交互窗口喵~": { "zh-TW": "秉持「以使用者為本、科技向善」的初心，關注前端無障礙（A11y）體驗，以乾淨、優美且包容的程式碼，為每個人提供平等的互動入口。", "en": "Guided by human-centered technology, I care about accessible interfaces and clean, inclusive code that welcomes everyone." },
         "秉承“用户为本 科技向善”的学习初心，关注前端无障碍 (A11y) 体验，用干净、优美、包容的代码为所有人提供平等的交互窗口喵呜！": { "zh-TW": "秉持「以使用者為本、科技向善」的初心，關注前端無障礙（A11y）體驗，以乾淨、優美且包容的程式碼，為每個人提供平等的互動入口。", "en": "Guided by human-centered technology, I care about accessible interfaces and clean, inclusive code that welcomes everyone." },
         "最新动态": { "zh-TW": "最新動態", "en": "Latest Updates" },
         "关于我 / 2026.07.04": { "zh-TW": "關於我 / 2026.07.04", "en": "About / 2026.07.04" },
@@ -170,8 +173,11 @@
         "瑶曦头像": { "zh-TW": "瑤曦頭像", "en": "Yaoxi avatar" },
         "前端开发核心技能": { "zh-TW": "前端開發核心技能", "en": "Core frontend skills" },
         "自动化部署与工程化": { "zh-TW": "自動化部署與工程化", "en": "Automation and engineering" },
+        "交互与界面设计": { "zh-TW": "互動與介面設計", "en": "Interaction and interface design" },
         "交互交互与界面设计": { "zh-TW": "互動與介面設計", "en": "Interaction and interface design" },
         "与我沟通交流": { "zh-TW": "與我聯絡交流", "en": "Get in touch" },
+        "播放背景音乐": { "zh-TW": "播放背景音樂", "en": "Play background music" },
+        "暂停背景音乐": { "zh-TW": "暫停背景音樂", "en": "Pause background music" },
         "关闭偏好设置": { "zh-TW": "關閉偏好設定", "en": "Close preferences" }
     };
 
@@ -603,6 +609,9 @@
 
         function startAutoPlay() {
             stopAutoPlay();
+            if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                return;
+            }
             slideInterval = setInterval(nextSlide, intervalTime);
         }
 
@@ -751,18 +760,51 @@
         const modalData = document.getElementById("modal-data");
         const modalIcon = document.getElementById("modal-icon");
         const socialButtons = document.querySelectorAll(".social-btn[data-contact-title]");
+        const musicToggle = document.getElementById("musicToggle");
+        const audio = document.getElementById("bgMusic");
+        const musicModal = document.getElementById("music-modal");
+        const musicRemember = document.getElementById("music-remember");
+
+        let lastFocusedElement = null;
+
+        function trapFocus(event, modalElement) {
+            if (event.key !== "Tab" || !modalElement.classList.contains("active")) return;
+            const focusable = modalElement.querySelectorAll(
+                'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey) {
+                if (document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                }
+            } else {
+                if (document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            }
+        }
 
         function openContactModal(title, value, iconClass) {
             if (!contactModal || !modalTitle || !modalData || !modalIcon) return;
+            lastFocusedElement = document.activeElement;
             modalTitle.textContent = title;
             modalData.textContent = value;
             modalIcon.className = iconClass;
             contactModal.classList.add("active");
+            const copyBtn = contactModal.querySelector("[data-copy-contact]");
+            copyBtn?.focus();
         }
 
         function closeContactModal() {
-            if (contactModal) {
+            if (contactModal && contactModal.classList.contains("active")) {
                 contactModal.classList.remove("active");
+                if (lastFocusedElement instanceof HTMLElement) {
+                    lastFocusedElement.focus();
+                }
             }
         }
 
@@ -810,15 +852,14 @@
             });
         }
 
-        // --- 背景音乐 Modal ---
-        const audio = document.getElementById("bgMusic");
-        const musicModal = document.getElementById("music-modal");
-        const musicRemember = document.getElementById("music-remember");
-
-        function closeMusicModal() {
-            if (musicModal) {
-                musicModal.classList.remove("active");
-            }
+        // --- 背景音乐控制与 Modal ---
+        function updateMusicUI(isPlaying) {
+            if (!musicToggle) return;
+            musicToggle.classList.toggle("playing", isPlaying);
+            musicToggle.setAttribute("aria-pressed", String(isPlaying));
+            const label = isPlaying ? translateCopy("暂停背景音乐") : translateCopy("播放背景音乐");
+            musicToggle.setAttribute("aria-label", label);
+            musicToggle.title = label;
         }
 
         async function playMusic() {
@@ -827,13 +868,46 @@
             await audio.play();
         }
 
+        if (audio) {
+            audio.addEventListener("play", () => updateMusicUI(true));
+            audio.addEventListener("pause", () => updateMusicUI(false));
+            audio.addEventListener("ended", () => updateMusicUI(false));
+        }
+
+        if (musicToggle && audio) {
+            musicToggle.addEventListener("click", () => {
+                if (audio.paused) {
+                    playMusic().catch(() => {});
+                } else {
+                    audio.pause();
+                }
+            });
+        }
+
+        function openMusicModal() {
+            if (!musicModal) return;
+            lastFocusedElement = document.activeElement;
+            musicModal.classList.add("active");
+            const playBtn = musicModal.querySelector('[data-music-choice="play"]');
+            playBtn?.focus();
+        }
+
+        function closeMusicModal() {
+            if (musicModal && musicModal.classList.contains("active")) {
+                musicModal.classList.remove("active");
+                if (lastFocusedElement instanceof HTMLElement) {
+                    lastFocusedElement.focus();
+                }
+            }
+        }
+
         if (audio && musicModal && musicRemember) {
             const autoPlayPref = localStorage.getItem("musicAutoPlay");
 
             if (autoPlayPref === "true") {
                 playMusic().catch(() => {});
             } else if (autoPlayPref !== "false") {
-                setTimeout(() => musicModal.classList.add("active"), 1200);
+                setTimeout(() => openMusicModal(), 1200);
             }
 
             musicModal.addEventListener("click", (event) => {
@@ -862,9 +936,16 @@
         }
 
         document.addEventListener("keydown", (event) => {
-            if (event.key !== "Escape") return;
-            closeContactModal();
-            closeMusicModal();
+            if (event.key === "Escape") {
+                closeContactModal();
+                closeMusicModal();
+                return;
+            }
+            if (contactModal?.classList.contains("active")) {
+                trapFocus(event, contactModal);
+            } else if (musicModal?.classList.contains("active")) {
+                trapFocus(event, musicModal);
+            }
         });
     }
 

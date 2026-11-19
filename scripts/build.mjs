@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-const VER = "10-perf-max";
+const VER = "11-portfolio";
 
 // ---------- 1. 压缩 CSS ----------
 const cssResult = await build({
@@ -49,10 +49,9 @@ const swResult = await build({
   target: "es2019",
   logLevel: "silent",
 });
-const swMin = swResult.outputFiles[0].text.replace(
-  /main\.min\.js\?v=[^"]*/g,
-  `main.min.js?v=${VER}-${jsHash}`
-);
+const swMin = swResult.outputFiles[0].text
+  .replace(/"\/style\.css\?v=[^"]*",/, "")
+  .replace(/main\.js\?v=[^"]*/g, () => jsFile);
 
 // ---------- 4. 处理 HTML ----------
 let html = readFileSync(join(root, "index.html"), "utf8");

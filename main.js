@@ -230,7 +230,6 @@
 
     let currentLanguage = "zh-CN";
     let currentThemeMode = "auto";
-    let themeTransitionTimer = null;
     let translatableTextNodes = [];
     let translatableAttributes = [];
 
@@ -389,27 +388,15 @@
 
         const themeColor = document.querySelector('meta[name="theme-color"]');
         if (themeColor) {
-            themeColor.setAttribute("content", isLight ? "#EDF3FC" : "#07101F");
+            themeColor.setAttribute("content", isLight ? "#f8f4ec" : "#191715");
         }
 
         updateThemeControl(announce);
     }
 
-    function setThemeMode(mode, { persist = true, announce = false, animate = false } = {}) {
+    function setThemeMode(mode, { persist = true, announce = false } = {}) {
         const nextMode = THEME_MODES.includes(mode) ? mode : "auto";
-        const root = document.documentElement;
-        const button = document.getElementById("themeToggle");
         currentThemeMode = nextMode;
-
-        if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            root.classList.add("theme-changing");
-            button?.classList.add("is-switching");
-            if (themeTransitionTimer) window.clearTimeout(themeTransitionTimer);
-            themeTransitionTimer = window.setTimeout(() => {
-                root.classList.remove("theme-changing");
-                button?.classList.remove("is-switching");
-            }, 480);
-        }
 
         updateClockAndTheme(announce);
 
@@ -442,7 +429,7 @@
                 const nextMode = currentThemeMode === "auto"
                     ? (resolvedTheme === "light" ? "dark" : "light")
                     : (currentThemeMode === "light" ? "dark" : "auto");
-                setThemeMode(nextMode, { persist: true, announce: true, animate: true });
+                setThemeMode(nextMode, { persist: true, announce: true });
             });
         }
     }
@@ -507,31 +494,11 @@
         applyThemeForHour(hour, announceTheme);
     }
 
-    // --- 2. 导航栏滚动与响应式交互 ---
+    // --- 2. 响应式导航 ---
     function initNavbar() {
-        const nav = document.querySelector(".tencent-nav");
         const navToggle = document.getElementById("navToggle");
         const navMenu = document.getElementById("navMenu");
         
-        if (nav) {
-            let ticking = false;
-            const updateNavState = () => {
-                ticking = false;
-                if (window.scrollY > 50) {
-                    nav.classList.add("scrolled");
-                } else {
-                    nav.classList.remove("scrolled");
-                }
-            };
-            // rAF 节流 + passive：避免每帧触发 classList 操作导致滚动掉帧
-            window.addEventListener("scroll", () => {
-                if (!ticking) {
-                    ticking = true;
-                    window.requestAnimationFrame(updateNavState);
-                }
-            }, { passive: true });
-        }
-
         if (navToggle && navMenu) {
             navToggle.addEventListener("click", () => {
                 const expanded = navToggle.getAttribute("aria-expanded") === "true";
@@ -540,7 +507,7 @@
                 
                 const icon = navToggle.querySelector("i");
                 if (icon) {
-                    icon.className = navMenu.classList.contains("active") ? "ri-close-line" : "ri-menu-line";
+                    icon.className = expanded ? "ri-menu-line" : "ri-close-line";
                 }
             });
 
@@ -944,41 +911,6 @@
         });
     }
 
-    // --- 6. 3D 视差倾斜动效 (3D Parallax Tilt) ---
-    function initParallax() {
-        const cards = document.querySelectorAll(".card");
-        const isMouseDevice = window.matchMedia("(hover: hover)").matches;
-
-        if (isMouseDevice) {
-            cards.forEach((card) => {
-                card.addEventListener("mousemove", (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    const px = (x / rect.width) - 0.5;
-                    const py = (y / rect.height) - 0.5;
-                    
-                    const rx = -py * 8;
-                    const ry = px * 8;
-                    
-                    card.style.setProperty("--rx", `${rx}deg`);
-                    card.style.setProperty("--ry", `${ry}deg`);
-                    card.style.setProperty("--mx", `${x}px`);
-                    card.style.setProperty("--my", `${y}px`);
-                    
-                    card.classList.add("tilt-effect");
-                });
-
-                card.addEventListener("mouseleave", () => {
-                    card.classList.remove("tilt-effect");
-                    card.style.setProperty("--rx", "0deg");
-                    card.style.setProperty("--ry", "0deg");
-                });
-            });
-        }
-    }
-
     // --- 7. 延迟加载与自动兜底加载技能条 ---
     function initSkillFill() {
         const skillFills = document.querySelectorAll(".skill-fill");
@@ -1086,7 +1018,6 @@
         initCarousel();
         initCookieBanner();
         initModals();
-        initParallax();
         initSkillFill();
         initUmamiStats(); // 开启真实 API 数据抓取与渲染
     });

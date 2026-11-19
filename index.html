@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>yaoxi | 瑶曦的个人主页 - 前端学习与探索</title>
     <meta name="description" content="瑶曦 Yaoxi 的个人主页，记录前端学习方向、项目链接与联系方式，专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索。">
-    <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, 3D视差, PWA">
+    <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, PWA">
     <meta name="author" content="Yaoxi">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="theme-color" content="#07101F">
+    <meta name="theme-color" content="#191715">
     <meta name="color-scheme" content="dark light">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no,email=no,address=no">
@@ -48,7 +48,7 @@
     <link rel="preload" href="/assets/img/carousel_bg_1.avif" as="image" type="image/avif" fetchpriority="high">
     <link rel="preload" href="/assets/fonts/Inter-400-sub.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
-    <link rel="stylesheet" href="style.css?v=10-perf-max">
+    <link rel="stylesheet" href="style.css?v=11-portfolio">
     
     <!-- 配置主人专属的 Umami 流量统计 -->
     <script defer src="https://umami.yaoxi.cloud/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
@@ -101,6 +101,7 @@
     <header class="tencent-nav" id="mainHeader">
         <div class="nav-container">
             <a href="#intro" class="nav-brand" aria-label="瑶曦个人主页首页">
+                <img class="brand-avatar" src="/assets/img/avatar.avif" width="34" height="34" alt="">
                 <span class="logo-tencent">YaoXi</span>
                 <span class="logo-chn">瑶曦</span>
             </a>
@@ -117,9 +118,7 @@
             <div class="nav-right">
                 <div class="lang-selector" role="group" aria-label="选择语言">
                     <button class="lang-item active" type="button" data-lang="zh-CN" aria-pressed="true">简</button>
-                    <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="zh-TW" aria-pressed="false">繁</button>
-                    <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="en" aria-pressed="false">EN</button>
                 </div>
                 <button class="theme-toggle" id="themeToggle" type="button" data-theme-mode="auto" aria-label="主题跟随时间，点击切换到浅色模式" title="主题跟随时间，点击切换到浅色模式">
@@ -129,14 +128,15 @@
                     <i class="ri-music-2-line" aria-hidden="true"></i>
                 </button>
                 <span class="sr-only" id="themeStatus" aria-live="polite"></span>
-                <button class="nav-toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false" aria-controls="navMenu">
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="切换菜单" aria-expanded="false" aria-controls="navMenu">
                     <i class="ri-menu-line"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- 幻灯片大横幅 (Hero Carousel - 升级为 3 张幻灯片) -->
+    <main id="main-content" tabindex="-1">
+    <h1 class="sr-only">瑶曦 Yaoxi 的个人主页 - 前端学习与探索</h1>
     <section class="hero-carousel" id="intro" aria-label="瑶曦主页精选内容">
         <div class="carousel-container">
             <!-- Slide 1 -->
@@ -180,30 +180,33 @@
                 <time class="time-clock" id="clock">--:--</time>
                 <span class="time-date" id="timeDate">正在同步本地时间</span>
             </div>
-            <span class="time-zone" aria-hidden="true">LOCAL</span>
         </aside>
 
-        <!-- 极细线条方向箭头 -->
-        <div class="carousel-controls">
-            <button class="carousel-btn btn-prev" aria-label="上一张">
-                <span class="arrow-line-left"></span>
-            </button>
-            <button class="carousel-btn btn-next" aria-label="下一张">
-                <span class="arrow-line-right"></span>
-            </button>
-        </div>
+        <picture class="hero-visual" aria-hidden="true">
+            <source srcset="/assets/img/carousel_bg_1.avif" type="image/avif">
+            <img src="/carousel_bg_1.webp" alt="" fetchpriority="high">
+        </picture>
 
-        <!-- 幻灯片位置指示器 -->
-        <div class="carousel-indicators" role="group" aria-label="选择幻灯片">
-            <button class="indicator-dot active" type="button" data-index="0" aria-label="切换到第 1 张" aria-current="true"></button>
-            <button class="indicator-dot" type="button" data-index="1" aria-label="切换到第 2 张" aria-current="false"></button>
-            <button class="indicator-dot" type="button" data-index="2" aria-label="切换到第 3 张" aria-current="false"></button>
+        <div class="hero-actions">
+            <div class="carousel-controls">
+                <button type="button" class="carousel-btn btn-prev" aria-label="上一张">
+                    <span aria-hidden="true">←</span>
+                </button>
+                <button type="button" class="carousel-btn btn-next" aria-label="下一张">
+                    <span aria-hidden="true">→</span>
+                </button>
+            </div>
+
+            <div class="carousel-indicators" role="group" aria-label="选择幻灯片">
+                <button class="indicator-dot active" type="button" data-index="0" aria-label="切换到第 1 张" aria-current="true"></button>
+                <button class="indicator-dot" type="button" data-index="1" aria-label="切换到第 2 张" aria-current="false"></button>
+                <button class="indicator-dot" type="button" data-index="2" aria-label="切换到第 3 张" aria-current="false"></button>
+            </div>
         </div>
     </section>
 
     <!-- 主体内容 -->
-    <main class="tencent-main" id="main-content">
-        <h1 class="sr-only">瑶曦 Yaoxi 的个人主页 - 前端学习与探索</h1>
+    <div class="tencent-main">
         
         <!-- 1. 最新动态模块 (升级为 6 张卡片) -->
         <section class="news-section">
@@ -214,7 +217,7 @@
 
             <div class="news-grid">
                 <!-- 卡片 1: 简介 -->
-                <article class="news-card card" style="--delay: 1">
+                <article class="news-card">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/avatar.avif" type="image/avif"><source srcset="/avatar.webp" type="image/webp"><img src="/avatar.webp"  alt="瑶曦头像" class="card-avatar-img"></picture>
                     </div>
@@ -227,9 +230,9 @@
                 </article>
 
                 <!-- 卡片 2: 项目 -->
-                <article class="news-card card" id="projects" style="--delay: 2">
+                <article class="news-card" id="projects">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/project_blog.avif" type="image/avif"><source srcset="/project_blog.webp" type="image/webp"><img src="/project_blog.webp"  alt="瑶曦博客系统" class="card-avatar-img"></picture>
+                        <picture><source srcset="/assets/img/project_blog.avif" type="image/avif"><source srcset="/project_blog.webp" type="image/webp"><img src="/project_blog.webp" loading="lazy" decoding="async" alt="瑶曦博客系统" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">个人项目 / 2026.07.04</span>
@@ -246,9 +249,9 @@
                 </article>
 
                 <!-- 卡片 3: 技能 -->
-                <article class="news-card card" id="skills" style="--delay: 3">
+                <article class="news-card" id="skills">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp"  alt="前端开发核心技能" class="card-avatar-img"></picture>
+                        <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp" loading="lazy" decoding="async" alt="前端开发核心技能" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">技术积累 / 2026.07.04</span>
@@ -271,9 +274,9 @@
                 </article>
 
                 <!-- 卡片 4: 新增 (工程化) -->
-                <article class="news-card card" style="--delay: 4">
+                <article class="news-card">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/tech_engineering.avif" type="image/avif"><source srcset="/tech_engineering.webp" type="image/webp"><img src="/tech_engineering.webp"  alt="自动化部署与工程化" class="card-avatar-img"></picture>
+                        <picture><source srcset="/assets/img/tech_engineering.avif" type="image/avif"><source srcset="/tech_engineering.webp" type="image/webp"><img src="/tech_engineering.webp" loading="lazy" decoding="async" alt="自动化部署与工程化" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">工程化研究 / 2026.07.04</span>
@@ -284,9 +287,9 @@
                 </article>
 
                 <!-- 卡片 5: 新增 (设计体验) -->
-                <article class="news-card card" style="--delay: 5">
+                <article class="news-card">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/tech_design.avif" type="image/avif"><source srcset="/tech_design.webp" type="image/webp"><img src="/tech_design.webp"  alt="交互与界面设计" class="card-avatar-img"></picture>
+                        <picture><source srcset="/assets/img/tech_design.avif" type="image/avif"><source srcset="/tech_design.webp" type="image/webp"><img src="/tech_design.webp" loading="lazy" decoding="async" alt="交互与界面设计" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">设计美学 / 2026.07.04</span>
@@ -297,9 +300,9 @@
                 </article>
 
                 <!-- 卡片 6: 联系 -->
-                <article class="news-card card" id="contact-section" style="--delay: 6">
+                <article class="news-card" id="contact-section">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp"  alt="与我沟通交流" class="card-avatar-img" style="filter: hue-rotate(180deg) brightness(0.95);"></picture>
+                        <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp" loading="lazy" decoding="async" alt="与我沟通交流" class="card-avatar-img" style="filter: hue-rotate(180deg) brightness(0.95);"></picture>
                     </div>
                     <div class="card-info-box">
                         <span class="card-date">沟通交流 / 2026.07.04</span>
@@ -445,20 +448,21 @@
                             <svg viewBox="0 0 800 200" class="chart-svg">
                                 <defs>
                                     <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#0052D9" stop-opacity="0.25"/>
-                                        <stop offset="100%" stop-color="#0052D9" stop-opacity="0"/>
+                                        <stop offset="0%" stop-color="currentColor" stop-opacity="0.25"/>
+                                        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
                                     </linearGradient>
                                 </defs>
                                 <path d="M 0 150 Q 150 80 300 120 T 600 40 T 800 60 L 800 200 L 0 200 Z" fill="url(#chart-grad)"/>
-                                <path d="M 0 150 Q 150 80 300 120 T 600 40 T 800 60" fill="none" stroke="#0052D9" stroke-width="3.5" stroke-linecap="round"/>
-                                <circle cx="300" cy="120" r="6" fill="#FFFFFF" stroke="#0052D9" stroke-width="2.5"/>
-                                <circle cx="600" cy="40" r="6" fill="#FFFFFF" stroke="#0052D9" stroke-width="2.5"/>
+                                <path d="M 0 150 Q 150 80 300 120 T 600 40 T 800 60" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                                <circle cx="300" cy="120" r="6" fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
+                                <circle cx="600" cy="40" r="6" fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
                             </svg>
                         </div>
                     </div>
                 </div>
             </a>
         </section>
+    </div>
     </main>
 
     <!-- 6. 升级: 底部版权与多列大导航网络 (Rich Footer Links) -->
@@ -574,6 +578,6 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
-    <script src="main.js?v=10-perf-max"></script>
+    <script src="main.js?v=11-portfolio"></script>
 </body>
 </html>

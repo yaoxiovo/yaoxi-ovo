@@ -1,6 +1,7 @@
 https://yaoxi.wiki/
 https://yaoxi.wiki/index.html
-https://yaoxi.wiki/main.min.js
+https://yaoxi.wiki/main.js
+https://yaoxi.wiki/style.css
 https://yaoxi.wiki/sw.js
 https://yaoxi.wiki/robots.txt
 https://yaoxi.wiki/sitemap.xml
@@ -15,6 +16,7 @@ https://yaoxi.wiki/tech_engineering.webp
 https://yaoxi.wiki/tech_design.webp
 https://yaoxi.wiki/mother/index.html
 https://yaoxi.wiki/assets/img/avatar.avif
+https://yaoxi.wiki/assets/img/hero-studio.jpg
 https://yaoxi.wiki/assets/img/carousel_bg_1.avif
 https://yaoxi.wiki/assets/img/project_blog.avif
 https://yaoxi.wiki/assets/img/tech_skills.avif

@@ -115,10 +115,10 @@
         "持续自学天数 / Study Days": { "zh-TW": "持續自學天數 / Study Days", "en": "Learning Days" },
         "开源累积获赞 / GitHub Stars": { "zh-TW": "開源累積獲讚 / GitHub Stars", "en": "GitHub Stars" },
         "网站统计": { "zh-TW": "網站統計", "en": "Site Analytics" },
-        "数据大屏实时监测中 / Active": { "zh-TW": "即時資料監測中 / Active", "en": "Live monitoring / Active" },
+        "最近 30 天": { "zh-TW": "最近 30 天", "en": "Last 30 days" },
         "点击进入完整大屏": { "zh-TW": "點擊查看完整面板", "en": "Open full dashboard" },
-        "日均访客 (UV)": { "zh-TW": "日均訪客 (UV)", "en": "Daily visitors (UV)" },
-        "累计浏览量 (PV)": { "zh-TW": "累計瀏覽量 (PV)", "en": "Total pageviews (PV)" },
+        "访客数 (UV)": { "zh-TW": "訪客數 (UV)", "en": "Visitors (UV)" },
+        "浏览量 (PV)": { "zh-TW": "瀏覽量 (PV)", "en": "Pageviews (PV)" },
         "平均停留时间": { "zh-TW": "平均停留時間", "en": "Average visit" },
         "探索频道": { "zh-TW": "探索頻道", "en": "Explore" },
         "HTML5 动画实验室": { "zh-TW": "HTML5 動畫實驗室", "en": "HTML5 Motion Lab" },
@@ -160,6 +160,9 @@
         "瑶曦个人主页首页": { "zh-TW": "瑤曦個人首頁", "en": "Yaoxi homepage" },
         "选择语言": { "zh-TW": "選擇語言", "en": "Choose language" },
         "切换菜单": { "zh-TW": "切換選單", "en": "Toggle menu" },
+        "自动轮播": { "zh-TW": "自動輪播", "en": "Automatic slideshow" },
+        "专题导航": { "zh-TW": "專題導覽", "en": "Explore topics" },
+        "母亲节祝福": { "zh-TW": "母親節祝福", "en": "Mother’s Day wishes" },
         "瑶曦主页精选内容": { "zh-TW": "瑤曦首頁精選內容", "en": "Featured content" },
         "上一张": { "zh-TW": "上一張", "en": "Previous slide" },
         "下一张": { "zh-TW": "下一張", "en": "Next slide" },
@@ -192,35 +195,30 @@
 
     const TIME_PERIODS = [
         {
-            key: "morning",
             start: 5,
             end: 11,
             icon: "ri-sun-foggy-line",
             greeting: { "zh-CN": "早上好", "zh-TW": "早安", "en": "Good morning" }
         },
         {
-            key: "midday",
             start: 11,
             end: 14,
             icon: "ri-sun-line",
             greeting: { "zh-CN": "中午好", "zh-TW": "午安", "en": "Good afternoon" }
         },
         {
-            key: "afternoon",
             start: 14,
             end: 18,
             icon: "ri-sun-cloudy-line",
             greeting: { "zh-CN": "下午好", "zh-TW": "午安", "en": "Good afternoon" }
         },
         {
-            key: "evening",
             start: 18,
             end: 22,
             icon: "ri-sunset-line",
             greeting: { "zh-CN": "晚上好", "zh-TW": "晚上好", "en": "Good evening" }
         },
         {
-            key: "night",
             start: 22,
             end: 29,
             icon: "ri-moon-clear-line",
@@ -389,7 +387,7 @@
 
         const themeColor = document.querySelector('meta[name="theme-color"]');
         if (themeColor) {
-            themeColor.setAttribute("content", isLight ? "#EDF3FC" : "#07101F");
+            themeColor.setAttribute("content", isLight ? "#FAFBFC" : "#161A19");
         }
 
         updateThemeControl(announce);
@@ -489,11 +487,6 @@
         if (iconElement) iconElement.className = period.icon;
 
         if (widget) {
-            const minutesSinceMidnight = hour * 60 + now.getMinutes();
-            const progress = (minutesSinceMidnight / (24 * 60)) * 360;
-            widget.dataset.period = period.key;
-            widget.style.setProperty("--time-progress", progress.toFixed(2) + "deg");
-
             const timeText = clockElement?.textContent || "";
             if (currentLanguage === "en") {
                 widget.setAttribute("aria-label", greeting + ". Local time " + timeText + ", " + dateString + ".");
@@ -507,57 +500,35 @@
         applyThemeForHour(hour, announceTheme);
     }
 
-    // --- 2. 导航栏滚动与响应式交互 ---
     function initNavbar() {
-        const nav = document.querySelector(".tencent-nav");
         const navToggle = document.getElementById("navToggle");
         const navMenu = document.getElementById("navMenu");
-        
-        if (nav) {
-            let ticking = false;
-            const updateNavState = () => {
-                ticking = false;
-                if (window.scrollY > 50) {
-                    nav.classList.add("scrolled");
-                } else {
-                    nav.classList.remove("scrolled");
-                }
-            };
-            // rAF 节流 + passive：避免每帧触发 classList 操作导致滚动掉帧
-            window.addEventListener("scroll", () => {
-                if (!ticking) {
-                    ticking = true;
-                    window.requestAnimationFrame(updateNavState);
-                }
-            }, { passive: true });
+        if (!navToggle || !navMenu) return;
+
+        function setMenuExpanded(expanded) {
+            navToggle.setAttribute("aria-expanded", String(expanded));
+            navMenu.classList.toggle("active", expanded);
+            navToggle.querySelector("i").className = expanded ? "ri-close-line" : "ri-menu-line";
         }
 
-        if (navToggle && navMenu) {
-            navToggle.addEventListener("click", () => {
-                const expanded = navToggle.getAttribute("aria-expanded") === "true";
-                navToggle.setAttribute("aria-expanded", !expanded);
-                navMenu.classList.toggle("active");
-                
-                const icon = navToggle.querySelector("i");
-                if (icon) {
-                    icon.className = navMenu.classList.contains("active") ? "ri-close-line" : "ri-menu-line";
-                }
-            });
+        navToggle.addEventListener("click", () => {
+            setMenuExpanded(navToggle.getAttribute("aria-expanded") !== "true");
+        });
 
-            // 点击菜单链接后自动关闭
-            navMenu.querySelectorAll(".nav-item").forEach(link => {
-                link.addEventListener("click", () => {
-                    navMenu.classList.remove("active");
-                    navToggle.setAttribute("aria-expanded", "false");
-                    const icon = navToggle.querySelector("i");
-                    if (icon) icon.className = "ri-menu-line";
-                    
-                    // 激活状态切换
-                    navMenu.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
-                    link.classList.add("active");
-                });
+        const links = navMenu.querySelectorAll(".nav-item");
+        links.forEach((link) => {
+            link.addEventListener("click", () => {
+                setMenuExpanded(false);
+                links.forEach((item) => item.classList.toggle("active", item === link));
             });
-        }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && navToggle.getAttribute("aria-expanded") === "true") {
+                setMenuExpanded(false);
+                navToggle.focus();
+            }
+        });
     }
 
     // --- 3. 轮播图横幅逻辑 (Carousel Banner) ---
@@ -566,11 +537,13 @@
         const dots = document.querySelectorAll(".indicator-dot");
         const btnPrev = document.querySelector(".btn-prev");
         const btnNext = document.querySelector(".btn-next");
+        const playbackButton = document.querySelector(".carousel-playback");
         
         if (slides.length === 0) return;
 
         let currentIndex = 0;
         let slideInterval = null;
+        let autoplay = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const intervalTime = 5000; // 5秒轮播
 
         function showSlide(index) {
@@ -603,13 +576,24 @@
 
         function startAutoPlay() {
             stopAutoPlay();
-            slideInterval = setInterval(nextSlide, intervalTime);
+            if (autoplay && !document.hidden) {
+                slideInterval = setInterval(nextSlide, intervalTime);
+            }
         }
 
         function stopAutoPlay() {
             if (slideInterval) {
                 clearInterval(slideInterval);
             }
+        }
+
+        if (playbackButton) {
+            playbackButton.setAttribute("aria-pressed", String(autoplay));
+            playbackButton.addEventListener("click", () => {
+                autoplay = !autoplay;
+                playbackButton.setAttribute("aria-pressed", String(autoplay));
+                startAutoPlay();
+            });
         }
 
         if (btnNext) {
@@ -684,6 +668,29 @@
         startAutoPlay();
     }
 
+    function initScrollReveal() {
+        if (!("IntersectionObserver" in window) ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const targets = document.querySelectorAll(
+            ".section-header, .news-card, .pillar-card, .ssv-left, .ssv-right, .stats-box, .analytics-panel"
+        );
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.12 });
+
+        const viewportHeight = document.documentElement.clientHeight;
+        targets.forEach((target) => {
+            if (target.getBoundingClientRect().top < viewportHeight) return;
+            target.classList.add("scroll-reveal");
+            observer.observe(target);
+        });
+    }
+
     // --- 4. Cookie 偏好设置逻辑 ---
     function initCookieBanner() {
         const banner = document.getElementById("cookie-banner");
@@ -691,7 +698,6 @@
         const btnReject = document.getElementById("btnRejectCookies");
         const btnClose = document.getElementById("btnCloseCookies");
         const btnViewDetail = document.getElementById("btnViewCookieDetail");
-        const btnOpenCookieModal = document.getElementById("btnOpenCookieModal");
 
         const cookieModal = document.getElementById("cookie-detail-modal");
         const btnCloseModal = document.getElementById("btnCloseCookieModal");
@@ -738,7 +744,6 @@
         if (btnClose) btnClose.addEventListener("click", () => closeBanner(true));
 
         if (btnViewDetail) btnViewDetail.addEventListener("click", openDetailModal);
-        if (btnOpenCookieModal) btnOpenCookieModal.addEventListener("click", openDetailModal);
         if (btnCloseModal) btnCloseModal.addEventListener("click", closeDetailModal);
         if (btnCloseModalX) btnCloseModalX.addEventListener("click", closeDetailModal);
 
@@ -888,6 +893,7 @@
 
         // --- 背景音乐 Modal ---
         const audio = document.getElementById("bgMusic");
+        const musicToggle = document.getElementById("musicToggle");
         const musicModal = document.getElementById("music-modal");
         const musicRemember = document.getElementById("music-remember");
 
@@ -903,14 +909,26 @@
             await audio.play();
         }
 
-        if (audio && musicModal && musicRemember) {
+        if (audio && musicToggle && musicModal && musicRemember) {
             const autoPlayPref = localStorage.getItem("musicAutoPlay");
 
             if (autoPlayPref === "true") {
                 playMusic().catch(() => {});
-            } else if (autoPlayPref !== "false") {
-                setTimeout(() => musicModal.classList.add("active"), 1200);
             }
+
+            function syncMusicToggle() {
+                musicToggle.setAttribute("aria-pressed", String(!audio.paused));
+            }
+            audio.addEventListener("play", syncMusicToggle);
+            audio.addEventListener("pause", syncMusicToggle);
+            musicToggle.addEventListener("click", () => {
+                if (audio.paused) {
+                    musicModal.classList.add("active");
+                    musicRemember.focus();
+                } else {
+                    audio.pause();
+                }
+            });
 
             musicModal.addEventListener("click", (event) => {
                 const target = event.target;
@@ -942,41 +960,6 @@
             closeContactModal();
             closeMusicModal();
         });
-    }
-
-    // --- 6. 3D 视差倾斜动效 (3D Parallax Tilt) ---
-    function initParallax() {
-        const cards = document.querySelectorAll(".card");
-        const isMouseDevice = window.matchMedia("(hover: hover)").matches;
-
-        if (isMouseDevice) {
-            cards.forEach((card) => {
-                card.addEventListener("mousemove", (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    const px = (x / rect.width) - 0.5;
-                    const py = (y / rect.height) - 0.5;
-                    
-                    const rx = -py * 8;
-                    const ry = px * 8;
-                    
-                    card.style.setProperty("--rx", `${rx}deg`);
-                    card.style.setProperty("--ry", `${ry}deg`);
-                    card.style.setProperty("--mx", `${x}px`);
-                    card.style.setProperty("--my", `${y}px`);
-                    
-                    card.classList.add("tilt-effect");
-                });
-
-                card.addEventListener("mouseleave", () => {
-                    card.classList.remove("tilt-effect");
-                    card.style.setProperty("--rx", "0deg");
-                    card.style.setProperty("--ry", "0deg");
-                });
-            });
-        }
     }
 
     // --- 7. 延迟加载与自动兜底加载技能条 ---
@@ -1057,7 +1040,7 @@
                     pvEl.textContent = stats.pageviews;
                 }
                 if (stayEl) {
-                    let avgTimeStr = "2m 15s"; // 默认合理停留值
+                    let avgTimeStr = "—";
                     if (stats.pageviews > 0 && typeof stats.totaltime === 'number' && stats.totaltime > 0) {
                         const avgSeconds = Math.round(stats.totaltime / stats.pageviews);
                         if (avgSeconds >= 60) {
@@ -1072,7 +1055,7 @@
                 }
             }
         } catch (err) {
-            console.warn("Umami stats integration fetch failed, using beautiful mock display:", err);
+            console.warn("Umami stats could not be loaded:", err);
         }
     }
 
@@ -1084,9 +1067,9 @@
 
         initNavbar();
         initCarousel();
+        initScrollReveal();
         initCookieBanner();
         initModals();
-        initParallax();
         initSkillFill();
         initUmamiStats(); // 开启真实 API 数据抓取与渲染
     });

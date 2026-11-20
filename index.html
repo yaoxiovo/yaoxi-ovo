@@ -8,7 +8,7 @@
     <meta name="keywords" content="yaoxi, 瑶曦, 瑶曦个人主页, 前端开发, 个人网站, 独立博客, Web前端, PWA">
     <meta name="author" content="Yaoxi">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="theme-color" content="#191715">
+    <meta name="theme-color" content="#161A19">
     <meta name="color-scheme" content="dark light">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no,email=no,address=no">
@@ -45,10 +45,10 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <link rel="preload" href="/assets/img/avatar.avif" as="image" type="image/avif" fetchpriority="high">
-    <link rel="preload" href="/assets/img/carousel_bg_1.avif" as="image" type="image/avif" fetchpriority="high">
+    <link rel="preload" href="/assets/img/hero-studio.jpg" as="image" type="image/jpeg" fetchpriority="high">
     <link rel="preload" href="/assets/fonts/Inter-400-sub.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
-    <link rel="stylesheet" href="style.css?v=11-portfolio">
+    <link rel="stylesheet" href="/style.css">
     
     <!-- 配置主人专属的 Umami 流量统计 -->
     <script defer src="https://umami.yaoxi.cloud/script.js" data-website-id="8d2bc13d-c3e6-4109-8511-91d96f979d32"></script>
@@ -121,13 +121,11 @@
         </div>
     </noscript>
 
-    <!-- 顶部导航栏 (Tencent 经典偏平字标导航) -->
-    <header class="tencent-nav" id="mainHeader">
+    <header class="site-header" id="mainHeader">
         <div class="nav-container">
             <a href="#intro" class="nav-brand" aria-label="瑶曦个人主页首页">
-                <img class="brand-avatar" src="/assets/img/avatar.avif" width="34" height="34" alt="">
-                <span class="logo-tencent">YaoXi</span>
-                <span class="logo-chn">瑶曦</span>
+                <span class="brand-mark">Y<span>.</span></span>
+                <span class="brand-name">瑶曦 <small>YAOXI</small></span>
             </a>
             
             <nav class="nav-menu" id="navMenu">
@@ -142,122 +140,104 @@
             <div class="nav-right">
                 <div class="lang-selector" role="group" aria-label="选择语言">
                     <button class="lang-item active" type="button" data-lang="zh-CN" aria-pressed="true">简</button>
+                    <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="zh-TW" aria-pressed="false">繁</button>
+                    <span class="s-line" aria-hidden="true">|</span>
                     <button class="lang-item" type="button" data-lang="en" aria-pressed="false">EN</button>
                 </div>
                 <button class="theme-toggle" id="themeToggle" type="button" data-theme-mode="auto" aria-label="主题跟随时间，点击切换到浅色模式" title="主题跟随时间，点击切换到浅色模式">
                     <i class="ri-contrast-2-line" aria-hidden="true"></i>
                 </button>
+                <button class="music-toggle" id="musicToggle" type="button" aria-label="播放音乐" aria-pressed="false">
+                    <i class="ri-music-2-line" aria-hidden="true"></i>
+                </button>
                 <span class="sr-only" id="themeStatus" aria-live="polite"></span>
-                <button class="nav-toggle" id="navToggle" type="button" aria-label="切换菜单" aria-expanded="false" aria-controls="navMenu">
-                    <i class="ri-menu-line"></i>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="切换菜单" aria-controls="navMenu" aria-expanded="false">
+                    <i class="ri-menu-line" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <main id="main-content" tabindex="-1">
-    <h1 class="sr-only">瑶曦 Yaoxi 的个人主页 - 前端学习与探索</h1>
-    <section class="hero-carousel" id="intro" aria-label="瑶曦主页精选内容">
-        <div class="carousel-container">
-            <!-- Slide 1 -->
-            <div class="carousel-slide active" aria-hidden="false">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">瑶曦启动2026前端探索计划</h1>
-                        <p class="slide-desc">专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索，用代码连接热爱与现实，追逐交互艺术的无限可能喵~</p>
+        <h1 class="sr-only">瑶曦 Yaoxi 的个人主页 - 前端学习与探索</h1>
+        <section class="hero-carousel" id="intro" aria-label="瑶曦主页精选内容">
+            <div class="carousel-container">
+
+                <div class="carousel-slide active" aria-hidden="false">
+                    <div class="slide-content">
+                        <div class="slide-text">
+                            <h2 class="slide-title">瑶曦启动2026前端探索计划</h2>
+                            <p class="slide-desc">专注于 HTML5、CSS3 与 JavaScript 前端技术的学习与探索，用代码连接热爱与现实，追逐交互艺术的无限可能喵~</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-slide" aria-hidden="true">
+                    <div class="slide-content">
+                        <div class="slide-text">
+                            <h2 class="slide-title">致力于创造美观且实用的网页</h2>
+                            <p class="slide-desc">在高中繁忙的学业之余保持对计算机的热爱，在自学中沉淀技术，用优雅的设计 and 流畅的交互构筑纯粹的前端视界呜喵！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-slide" aria-hidden="true">
+                    <div class="slide-content">
+                        <div class="slide-text">
+                            <h2 class="slide-title">科技向善，探索开源的无限可能</h2>
+                            <p class="slide-desc">秉承“用户为本 科技向善”的学习初心，关注前端无障碍 (A11y) 体验，用干净、优美、包容的代码为所有人提供平等的交互窗口喵呜！</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Slide 2 -->
-            <div class="carousel-slide" aria-hidden="true">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">致力于创造美观且实用的网页</h1>
-                        <p class="slide-desc">在高中繁忙的学业之余保持对计算机的热爱，在自学中沉淀技术，用优雅的设计 and 流畅的交互构筑纯粹的前端视界呜喵！</p>
-                    </div>
+
+            <div class="hero-tools">
+                <a class="hero-link" href="#news">了解详情 <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+                <div class="carousel-controls">
+                    <button class="carousel-btn btn-prev" type="button" aria-label="上一张">
+                        <span class="arrow-line-left"></span>
+                    </button>
+                    <button class="carousel-btn btn-next" type="button" aria-label="下一张">
+                        <span class="arrow-line-right"></span>
+                    </button>
+                <button class="carousel-btn carousel-playback" type="button" aria-label="自动轮播" aria-pressed="true"></button>
+                </div>
+                <div class="carousel-indicators" role="group" aria-label="选择幻灯片">
+                    <button class="indicator-dot active" type="button" data-index="0" aria-label="切换到第 1 张" aria-current="true"></button>
+                    <button class="indicator-dot" type="button" data-index="1" aria-label="切换到第 2 张" aria-current="false"></button>
+                    <button class="indicator-dot" type="button" data-index="2" aria-label="切换到第 3 张" aria-current="false"></button>
                 </div>
             </div>
+        </section>
 
-            <!-- Slide 3 -->
-            <div class="carousel-slide" aria-hidden="true">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">科技向善，探索开源的无限可能</h1>
-                        <p class="slide-desc">秉承“用户为本 科技向善”的学习初心，关注前端无障碍 (A11y) 体验，用干净、优美、包容的代码为所有人提供平等的交互窗口喵呜！</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <aside class="time-widget" id="timeWidget" data-period="night" aria-live="polite" aria-label="当前时间与问候">
-            <div class="time-orbit" aria-hidden="true">
-                <span class="time-orbit-ring"></span>
-                <i class="ri-moon-clear-line" id="timeIcon"></i>
-            </div>
-            <div class="time-copy">
-                <span class="time-greeting" id="timeGreeting">晚上好</span>
-                <time class="time-clock" id="clock">--:--</time>
-                <span class="time-date" id="timeDate">正在同步本地时间</span>
-            </div>
-        </aside>
-
-        <picture class="hero-visual" aria-hidden="true">
-            <source srcset="/assets/img/carousel_bg_1.avif" type="image/avif">
-            <img src="/carousel_bg_1.webp" alt="" fetchpriority="high">
-        </picture>
-
-        <div class="hero-actions">
-            <div class="carousel-controls">
-                <button type="button" class="carousel-btn btn-prev" aria-label="上一张">
-                    <span aria-hidden="true">←</span>
-                </button>
-                <button type="button" class="carousel-btn btn-next" aria-label="下一张">
-                    <span aria-hidden="true">→</span>
-                </button>
-            </div>
-
-            <div class="carousel-indicators" role="group" aria-label="选择幻灯片">
-                <button class="indicator-dot active" type="button" data-index="0" aria-label="切换到第 1 张" aria-current="true"></button>
-                <button class="indicator-dot" type="button" data-index="1" aria-label="切换到第 2 张" aria-current="false"></button>
-                <button class="indicator-dot" type="button" data-index="2" aria-label="切换到第 3 张" aria-current="false"></button>
-            </div>
-        </div>
-    </section>
-
-    <!-- 主体内容 -->
-    <div class="tencent-main">
-        
-        <!-- 1. 最新动态模块 (升级为 6 张卡片) -->
-        <section class="news-section">
+        <section class="news-section" id="news">
             <div class="section-header">
                 <h2 class="section-title">最新动态</h2>
                 <div class="title-line"></div>
             </div>
 
             <div class="news-grid">
-                <!-- 卡片 1: 简介 -->
+
                 <article class="news-card">
                     <div class="card-image-box">
-                        <picture><source srcset="/assets/img/avatar.avif" type="image/avif"><source srcset="/avatar.webp" type="image/webp"><img src="/avatar.webp"  alt="瑶曦头像" class="card-avatar-img"></picture>
+                        <picture><source srcset="/assets/img/avatar.avif" type="image/avif"><source srcset="/avatar.webp" type="image/webp"><img src="/avatar.webp" loading="lazy" decoding="async" alt="瑶曦头像" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">关于我 / 2026.07.04</span>
                         <h3 class="card-news-title">你好，我是瑶曦 Yaoxi！</h3>
+                        <span class="card-date">关于我 / 2026.07.04</span>
                         <p class="card-excerpt">一名正在自学前端的高二学生。专注于现代 Web 页面重构与简单 UI 设计，在学业繁忙的间隙依然保持着对计算机技术与编程的纯粹热爱喵。</p>
                         <a href="#intro" class="card-more-link">了解详情 <i class="ri-arrow-right-line"></i></a>
                     </div>
                 </article>
 
-                <!-- 卡片 2: 项目 -->
                 <article class="news-card" id="projects">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/project_blog.avif" type="image/avif"><source srcset="/project_blog.webp" type="image/webp"><img src="/project_blog.webp" loading="lazy" decoding="async" alt="瑶曦博客系统" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">个人项目 / 2026.07.04</span>
                         <h3 class="card-news-title">生活分享与实践站：瑶曦博客</h3>
+                        <span class="card-date">个人项目 / 2026.07.04</span>
                         <p class="card-excerpt">记录我的技术折腾经历、日常随笔与前端学习沉淀。点击下方链接即可跳转到我的个人博客网站，跟本喵一起探索更广阔的 Web 世界吧喵~</p>
                         <a class="project-link" href="https://blog.yaoxi.wiki" target="_blank" rel="noopener noreferrer">
                             <span class="project-link-label">
@@ -269,14 +249,13 @@
                     </div>
                 </article>
 
-                <!-- 卡片 3: 技能 -->
                 <article class="news-card" id="skills">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp" loading="lazy" decoding="async" alt="前端开发核心技能" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">技术积累 / 2026.07.04</span>
                         <h3 class="card-news-title">前端核心技能与技术栈</h3>
+                        <span class="card-date">技术积累 / 2026.07.04</span>
                         <div class="skill-list">
                             <div class="skill-item">
                                 <div class="skill-meta"><span>HTML / CSS</span><span>45%</span></div>
@@ -294,40 +273,37 @@
                     </div>
                 </article>
 
-                <!-- 卡片 4: 新增 (工程化) -->
                 <article class="news-card">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/tech_engineering.avif" type="image/avif"><source srcset="/tech_engineering.webp" type="image/webp"><img src="/tech_engineering.webp" loading="lazy" decoding="async" alt="自动化部署与工程化" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">工程化研究 / 2026.07.04</span>
                         <h3 class="card-news-title">前端工程化与自动化部署</h3>
+                        <span class="card-date">工程化研究 / 2026.07.04</span>
                         <p class="card-excerpt">探索现代构建调优、Serverless 云函数、Git 自动化流。用高效的自动化工作流，构筑极速且极其稳定的前端研发与上线基石喵。</p>
                         <a href="#pillars" class="card-more-link">阅读大纲 <i class="ri-arrow-right-line"></i></a>
                     </div>
                 </article>
 
-                <!-- 卡片 5: 新增 (设计体验) -->
                 <article class="news-card">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/tech_design.avif" type="image/avif"><source srcset="/tech_design.webp" type="image/webp"><img src="/tech_design.webp" loading="lazy" decoding="async" alt="交互与界面设计" class="card-avatar-img"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">设计美学 / 2026.07.04</span>
                         <h3 class="card-news-title">人机交互与视觉色彩探索</h3>
+                        <span class="card-date">设计美学 / 2026.07.04</span>
                         <p class="card-excerpt">学习扁平网格、平滑微动效与现代无框卡片视觉排版。用代码来重组设计语言，赋予静态页面以呼吸感，探索交互细节的精致之美呜喵。</p>
                         <a href="#pillars" class="card-more-link">查看详情 <i class="ri-arrow-right-line"></i></a>
                     </div>
                 </article>
 
-                <!-- 卡片 6: 联系 -->
                 <article class="news-card" id="contact-section">
                     <div class="card-image-box">
                         <picture><source srcset="/assets/img/tech_skills.avif" type="image/avif"><source srcset="/tech_skills.webp" type="image/webp"><img src="/tech_skills.webp" loading="lazy" decoding="async" alt="与我沟通交流" class="card-avatar-img" style="filter: hue-rotate(180deg) brightness(0.95);"></picture>
                     </div>
                     <div class="card-info-box">
-                        <span class="card-date">沟通交流 / 2026.07.04</span>
                         <h3 class="card-news-title">沟通与技术交流渠道</h3>
+                        <span class="card-date">沟通交流 / 2026.07.04</span>
                         <p class="card-excerpt">欢迎各位开发者、同好及朋友前来交流学习心得！你可以点击下方按钮复制对应的联系方式，随时给本喵留言探讨问题喵呜！</p>
                         <div class="social-links">
                             <button class="social-btn" type="button" data-contact-title="QQ" data-contact-value="3487445594" data-contact-icon="ri-qq-fill">
@@ -342,7 +318,21 @@
             </div>
         </section>
 
-        <!-- 2. 新增: 核心业务支柱与技术方向模块 (Pillars Section) -->
+        <nav class="topic-nav" aria-label="专题导航">
+            <a href="#projects">项目 <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            <a href="#pillars">业务/技术 <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            <a href="#ssv">社会价值 <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            <a href="#contact-section">联系 <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            <aside class="time-widget" id="timeWidget" aria-label="当前时间与问候">
+                <div class="time-orbit" aria-hidden="true"><i class="ri-moon-clear-line" id="timeIcon"></i></div>
+                <div class="time-copy">
+                    <span class="time-greeting" id="timeGreeting">晚上好</span>
+                    <time class="time-clock" id="clock">--:--</time>
+                    <span class="time-date" id="timeDate">正在同步本地时间</span>
+                </div>
+            </aside>
+        </nav>
+
         <section class="pillars-section" id="pillars">
             <div class="section-header">
                 <h2 class="section-title">业务 / 技术方向</h2>
@@ -368,7 +358,6 @@
             </div>
         </section>
 
-        <!-- 3. 新增: 科技向善与社会价值模块 (SSV Section) -->
         <section class="ssv-section" id="ssv">
             <div class="section-header">
                 <h2 class="section-title">科技向善</h2>
@@ -404,7 +393,6 @@
             </div>
         </section>
 
-        <!-- 4. 新增: 瑶曦大厂股票/探索关键业绩指标 (Key Statistics Section) -->
         <section class="stats-section">
             <div class="section-header">
                 <h2 class="section-title">关键指标</h2>
@@ -431,7 +419,6 @@
             </div>
         </section>
 
-        <!-- 5. 网站数据大屏 (Umami 真实数据展示 - Mock看板 + API渲染) -->
         <section class="analytics-section" id="analytics-section">
             <div class="section-header">
                 <h2 class="section-title">网站统计</h2>
@@ -439,11 +426,11 @@
             </div>
             
             <a href="https://umami.yaoxi.cloud/share/w6nUjtX9Tt5Gpr3D" target="_blank" rel="noopener noreferrer" class="analytics-card-link">
-                <div class="analytics-container-mock">
+                <div class="analytics-panel">
                     <div class="analytics-header">
                         <div class="analytics-status">
                             <span class="pulse-dot"></span>
-                            <span>数据大屏实时监测中 / Active</span>
+                            <span>最近 30 天</span>
                         </div>
                         <div class="analytics-action-hint">
                             点击进入完整大屏 <i class="ri-arrow-right-up-line"></i>
@@ -452,59 +439,33 @@
                     <div class="analytics-body">
                         <div class="analytics-summary">
                             <div class="summary-item">
-                                <span class="summary-label">日均访客 (UV)</span>
-                                <span class="summary-value">120+</span>
+                                <span class="summary-label">访客数 (UV)</span>
+                                <span class="summary-value">—</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">累计浏览量 (PV)</span>
-                                <span class="summary-value">8,400+</span>
+                                <span class="summary-label">浏览量 (PV)</span>
+                                <span class="summary-value">—</span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">平均停留时间</span>
-                                <span class="summary-value">2m 45s</span>
+                                <span class="summary-value">—</span>
                             </div>
                         </div>
                         
-                        <div class="analytics-chart-mock" aria-hidden="true">
-                            <svg viewBox="0 0 800 200" class="chart-svg">
-                                <defs>
-                                    <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="currentColor" stop-opacity="0.25"/>
-                                        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M 0 150 Q 150 80 300 120 T 600 40 T 800 60 L 800 200 L 0 200 Z" fill="url(#chart-grad)"/>
-                                <path d="M 0 150 Q 150 80 300 120 T 600 40 T 800 60" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
-                                <circle cx="300" cy="120" r="6" fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
-                                <circle cx="600" cy="40" r="6" fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
-                            </svg>
-                        </div>
                     </div>
                 </div>
             </a>
         </section>
-    </div>
     </main>
 
-    <!-- 6. 升级: 底部版权与多列大导航网络 (Rich Footer Links) -->
-    <footer class="tencent-footer">
+    <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-links-grid">
-                <div class="footer-column">
-                    <h4 class="footer-col-title">探索频道</h4>
-                    <ul class="footer-col-links">
-                        <li><a href="#">HTML5 动画实验室</a></li>
-                        <li><a href="#">CSS3 3D特效馆</a></li>
-                        <li><a href="#">JavaScript 游乐园</a></li>
-                        <li><a href="#">PWA 离线存储实验</a></li>
-                    </ul>
-                </div>
                 <div class="footer-column">
                     <h4 class="footer-col-title">旗下站点</h4>
                     <ul class="footer-col-links">
                         <li><a href="https://blog.yaoxi.wiki" target="_blank" rel="noopener noreferrer">瑶曦博客系统</a></li>
-                        <li><a href="#">数据开发工具箱</a></li>
-                        <li><a href="#">图片隐写与盲水印</a></li>
+                        <li><a href="/mother/">母亲节祝福</a></li>
                         <li><a href="https://umami.yaoxi.cloud/share/w6nUjtX9Tt5Gpr3D" target="_blank" rel="noopener noreferrer">Umami 流量仪表盘</a></li>
                     </ul>
                 </div>
@@ -517,19 +478,16 @@
                 <div class="footer-column">
                     <h4 class="footer-col-title">无障碍与合规</h4>
                     <ul class="footer-col-links">
-                        <li><a href="#">WCAG 无障碍规范</a></li>
-                        <li><a href="javascript:void(0)" id="triggerCookieSettings">Cookies 偏好设定</a></li>
-                        <li><a href="javascript:void(0)" id="triggerPrivacyPolicy">个人隐私保护政策</a></li>
-                        <li><a href="#">技术漏洞安全上报</a></li>
+                        <li><button type="button" id="triggerCookieSettings">Cookies 偏好设定</button></li>
+                        <li><button type="button" id="triggerPrivacyPolicy">个人隐私保护政策</button></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h4 class="footer-col-title">关注我 / Connect</h4>
                     <ul class="footer-col-links">
                         <li><a href="https://github.com/yaoxiovo" target="_blank" rel="noopener noreferrer"><i class="ri-github-fill"></i> GitHub 仓库</a></li>
-                        <li><a href="javascript:void(0)" class="trigger-qq"><i class="ri-qq-fill"></i> QQ 联系</a></li>
+                        <li><button type="button" class="trigger-qq"><i class="ri-qq-fill"></i> QQ 联系</button></li>
                         <li><a href="mailto:yaoxiovo@gmail.com"><i class="ri-mail-send-fill"></i> 电子邮箱</a></li>
-                        <li><a href="#">开发者同盟论坛</a></li>
                     </ul>
                 </div>
             </div>
@@ -550,15 +508,6 @@
                 </div>
                 <p class="cookie-desc">
                     欢迎来到 yaoxi.wiki！本站为纯静态主页，注重访客隐私安全与透明度。我们仅使用少量<strong>必要本地偏好 (LocalStorage)</strong>、<strong>匿名性能监控 (快猫星云 RUM)</strong> 与 <strong>PWA 离线缓存</strong>优化浏览体验，不收集任何个人身份信息。
-                </p>
-                <div class="cookie-tags-list">
-                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 必要本地存储：主题/语言/音频偏好</span>
-                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 性能监控：快猫星云 RUM (加载耗时/无录屏/输入掩码)</span>
-                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 访问统计：自建 Umami (无追踪 Cookie)</span>
-                    <span class="cookie-tag"><svg class="cookie-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 离线加速：Service Worker 静态缓存</span>
-                </div>
-                <p class="cookie-sub-desc">
-                    了解详情请点击 <a href="javascript:void(0)" class="cookie-link" id="btnOpenCookieModal">查看 Cookies 详细清单与隐私说明</a>。
                 </p>
             </div>
             <div class="cookie-actions">
@@ -585,7 +534,7 @@
             </div>
 
             <div class="cookie-modal-body">
-                <!-- 1. 必要本地存储 -->
+
                 <div class="cookie-group">
                     <div class="cookie-group-title">
                         <svg class="cookie-svg" style="color: var(--accent);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -616,7 +565,6 @@
                     </div>
                 </div>
 
-                <!-- 2. 性能体验与统计 -->
                 <div class="cookie-group">
                     <div class="cookie-group-title">
                         <svg class="cookie-svg" style="color: var(--accent);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -641,7 +589,6 @@
                     </div>
                 </div>
 
-                <!-- 3. 离线缓存 -->
                 <div class="cookie-group">
                     <div class="cookie-group-title">
                         <svg class="cookie-svg" style="color: var(--accent);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -650,7 +597,7 @@
                     </div>
                     <div class="cookie-item-list">
                         <div class="cookie-item">
-                            <span class="cookie-item-name">yaoxi-home-v11-portfolio</span>
+                            <span class="cookie-item-name">yaoxi-home-v13</span>
                             <span class="cookie-item-desc"><strong>CacheStorage / SW</strong> · Service Worker 本地离线安全缓存 HTML、CSS、JS、字体切片及图片，实现二次访问秒开及离线可访问能力。</span>
                         </div>
                     </div>
@@ -711,6 +658,6 @@
     <!-- 背景音乐音频标签 -->
     <audio id="bgMusic" src="/music.mp3" loop preload="none"></audio>
 
-    <script src="main.js?v=11-portfolio"></script>
+    <script src="/main.js"></script>
 </body>
 </html>
